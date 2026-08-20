@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 @main
-struct FolderPadApp: App {
+struct FolbiApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var model = WorkspaceModel.shared
 
@@ -15,7 +15,7 @@ struct FolderPadApp: App {
         .windowResizability(.contentMinSize)
         .windowToolbarStyle(.unified)
         .commands {
-            FolderPadCommands(model: model)
+            FolbiCommands(model: model)
         }
     }
 }
@@ -26,7 +26,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 }
 
-private struct FolderPadCommands: Commands {
+private struct FolbiCommands: Commands {
     @ObservedObject var model: WorkspaceModel
 
     var body: some Commands {

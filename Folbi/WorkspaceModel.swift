@@ -3,7 +3,7 @@ import Combine
 import CoreServices
 import Foundation
 
-enum FolderPadError: Error, Equatable, LocalizedError {
+enum FolbiError: Error, Equatable, LocalizedError {
     case fileTooLarge(maximumBytes: Int)
     case invalidItemName
     case itemAlreadyExists
@@ -32,15 +32,15 @@ enum DocumentIO {
     static func readUTF8Text(at url: URL, maximumBytes: Int = maximumDocumentBytes) throws -> String {
         let values = try url.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey])
         guard values.isRegularFile == true else {
-            throw FolderPadError.notRegularFile
+            throw FolbiError.notRegularFile
         }
         guard (values.fileSize ?? 0) <= maximumBytes else {
-            throw FolderPadError.fileTooLarge(maximumBytes: maximumBytes)
+            throw FolbiError.fileTooLarge(maximumBytes: maximumBytes)
         }
 
         let data = try Data(contentsOf: url, options: .mappedIfSafe)
         guard let text = String(data: data, encoding: .utf8) else {
-            throw FolderPadError.notUTF8
+            throw FolbiError.notUTF8
         }
         return text
     }
@@ -51,7 +51,7 @@ enum DocumentIO {
               name != "..",
               !name.contains("/"),
               !name.unicodeScalars.contains("\0") else {
-            throw FolderPadError.invalidItemName
+            throw FolbiError.invalidItemName
         }
     }
 }
@@ -178,7 +178,7 @@ final class WorkspaceModel: ObservableObject {
         guard confirmCanAbandonCurrentDocument() else { return }
         var isDirectory: ObjCBool = false
         guard FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory), isDirectory.boolValue else {
-            presentError(FolderPadError.notRegularFile, title: "无法打开文件夹")
+            presentError(FolbiError.notRegularFile, title: "无法打开文件夹")
             return
         }
 
@@ -289,7 +289,7 @@ final class WorkspaceModel: ObservableObject {
             try DocumentIO.validateNewItemName(nameField.stringValue)
             let newURL = parentURL.appendingPathComponent(nameField.stringValue, isDirectory: isDirectory)
             guard !FileManager.default.fileExists(atPath: newURL.path) else {
-                throw FolderPadError.itemAlreadyExists
+                throw FolbiError.itemAlreadyExists
             }
             if isDirectory {
                 try FileManager.default.createDirectory(at: newURL, withIntermediateDirectories: false)
@@ -397,7 +397,7 @@ final class WorkspaceModel: ObservableObject {
 private final class FSEventsWatcher {
     private var stream: FSEventStreamRef?
     private var handler: (() -> Void)?
-    private let queue = DispatchQueue(label: "com.dimon.folderpad.fsevents", qos: .utility)
+    private let queue = DispatchQueue(label: "com.dimon.folbi.fsevents", qos: .utility)
 
     deinit {
         stop()

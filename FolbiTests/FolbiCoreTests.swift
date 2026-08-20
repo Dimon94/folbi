@@ -1,7 +1,7 @@
 import XCTest
-@testable import FolderPad
+@testable import Folbi
 
-final class FolderPadCoreTests: XCTestCase {
+final class FolbiCoreTests: XCTestCase {
     func testDirectoryLoadIncludesDotFilesAndSortsFoldersFirst() throws {
         let root = try makeTemporaryDirectory()
         defer { try? FileManager.default.removeItem(at: root) }
@@ -23,7 +23,7 @@ final class FolderPadCoreTests: XCTestCase {
         try Data(repeating: 0x61, count: 17).write(to: file)
 
         XCTAssertThrowsError(try DocumentIO.readUTF8Text(at: file, maximumBytes: 16)) { error in
-            XCTAssertEqual(error as? FolderPadError, .fileTooLarge(maximumBytes: 16))
+            XCTAssertEqual(error as? FolbiError, .fileTooLarge(maximumBytes: 16))
         }
     }
 

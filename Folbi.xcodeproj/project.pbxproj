@@ -16,24 +16,24 @@
 			containerPortal = A10000000000000000000001 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = A10000000000000000000008;
-			remoteInfo = FolderPad;
+			remoteInfo = Folbi;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		A10000000000000000000006 /* Folbi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Folbi.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A10000000000000000000007 /* FolderPadTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FolderPadTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000000000000000000007 /* FolbiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FolbiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		A10000000000000000000004 /* FolderPad */ = {
+		A10000000000000000000004 /* Folbi */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = FolderPad;
+			path = Folbi;
 			sourceTree = "<group>";
 		};
-		A10000000000000000000005 /* FolderPadTests */ = {
+		A10000000000000000000005 /* FolbiTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = FolderPadTests;
+			path = FolbiTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -60,8 +60,8 @@
 		A10000000000000000000002 = {
 			isa = PBXGroup;
 			children = (
-				A10000000000000000000004 /* FolderPad */,
-				A10000000000000000000005 /* FolderPadTests */,
+				A10000000000000000000004 /* Folbi */,
+				A10000000000000000000005 /* FolbiTests */,
 				A10000000000000000000003 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -70,7 +70,7 @@
 			isa = PBXGroup;
 			children = (
 				A10000000000000000000006 /* Folbi.app */,
-				A10000000000000000000007 /* FolderPadTests.xctest */,
+				A10000000000000000000007 /* FolbiTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -78,9 +78,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A10000000000000000000008 /* FolderPad */ = {
+		A10000000000000000000008 /* Folbi */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A10000000000000000000011 /* Build configuration list for PBXNativeTarget "FolderPad" */;
+			buildConfigurationList = A10000000000000000000011 /* Build configuration list for PBXNativeTarget "Folbi" */;
 			buildPhases = (
 				A1000000000000000000000A /* Sources */,
 				A1000000000000000000000B /* Frameworks */,
@@ -91,9 +91,9 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				A10000000000000000000004 /* FolderPad */,
+				A10000000000000000000004 /* Folbi */,
 			);
-			name = FolderPad;
+			name = Folbi;
 			packageProductDependencies = (
 				A10000000000000000000031 /* CodeEditSourceEditor */,
 			);
@@ -101,9 +101,9 @@
 			productReference = A10000000000000000000006 /* Folbi.app */;
 			productType = "com.apple.product-type.application";
 		};
-		A10000000000000000000009 /* FolderPadTests */ = {
+		A10000000000000000000009 /* FolbiTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A10000000000000000000012 /* Build configuration list for PBXNativeTarget "FolderPadTests" */;
+			buildConfigurationList = A10000000000000000000012 /* Build configuration list for PBXNativeTarget "FolbiTests" */;
 			buildPhases = (
 				A1000000000000000000000D /* Sources */,
 				A1000000000000000000000E /* Frameworks */,
@@ -115,11 +115,11 @@
 				A10000000000000000000033 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				A10000000000000000000005 /* FolderPadTests */,
+				A10000000000000000000005 /* FolbiTests */,
 			);
-			name = FolderPadTests;
-			productName = FolderPadTests;
-			productReference = A10000000000000000000007 /* FolderPadTests.xctest */;
+			name = FolbiTests;
+			productName = FolbiTests;
+			productReference = A10000000000000000000007 /* FolbiTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -141,7 +141,7 @@
 					};
 				};
 			};
-			buildConfigurationList = A10000000000000000000010 /* Build configuration list for PBXProject "FolderPad" */;
+			buildConfigurationList = A10000000000000000000010 /* Build configuration list for PBXProject "Folbi" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -158,8 +158,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A10000000000000000000008 /* FolderPad */,
-				A10000000000000000000009 /* FolderPadTests */,
+				A10000000000000000000008 /* Folbi */,
+				A10000000000000000000009 /* FolbiTests */,
 			);
 		};
 /* End PBXProject section */
@@ -201,7 +201,7 @@
 /* Begin PBXTargetDependency section */
 		A10000000000000000000033 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = A10000000000000000000008 /* FolderPad */;
+			target = A10000000000000000000008 /* Folbi */;
 			targetProxy = A10000000000000000000034 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -257,8 +257,8 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dimon.folderpad;
-				PRODUCT_MODULE_NAME = FolderPad;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dimon.folbi;
+				PRODUCT_MODULE_NAME = Folbi;
 				PRODUCT_NAME = Folbi;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -283,8 +283,8 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dimon.folderpad;
-				PRODUCT_MODULE_NAME = FolderPad;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dimon.folbi;
+				PRODUCT_MODULE_NAME = Folbi;
 				PRODUCT_NAME = Folbi;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -299,7 +299,7 @@
 				CODE_SIGNING_REQUIRED = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dimon.folderpad.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dimon.folbi.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -315,7 +315,7 @@
 				CODE_SIGNING_REQUIRED = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dimon.folderpad.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dimon.folbi.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -326,7 +326,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A10000000000000000000010 /* Build configuration list for PBXProject "FolderPad" */ = {
+		A10000000000000000000010 /* Build configuration list for PBXProject "Folbi" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A10000000000000000000020 /* Debug */,
@@ -335,7 +335,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A10000000000000000000011 /* Build configuration list for PBXNativeTarget "FolderPad" */ = {
+		A10000000000000000000011 /* Build configuration list for PBXNativeTarget "Folbi" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A10000000000000000000022 /* Debug */,
@@ -344,7 +344,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A10000000000000000000012 /* Build configuration list for PBXNativeTarget "FolderPadTests" */ = {
+		A10000000000000000000012 /* Build configuration list for PBXNativeTarget "FolbiTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A10000000000000000000024 /* Debug */,
