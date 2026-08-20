@@ -124,6 +124,13 @@ DRY、SOLID、KISS 和 YAGNI 用来减少重复意义、特殊情况和无效间
 - 当前 Xcode 26.6 的 XCTest bundle 最低目标为 macOS 14；应用目标仍为 macOS 13。
 - CLI 验证需要 `-skipPackagePluginValidation` 允许依赖附带的 SwiftLint build tool plugin。
 
+维护本节规则时：
+
+1. 以 manifest、compiler、formatter、linter 和 CI 配置为真相。
+2. 把语言和框架特有规则写入最近的模块 AGENTS.md 或独立栈文档。
+3. 只记录配置无法表达的约束、取舍和陷阱。
+4. 不在根规范复制可以从脚本和 --help 直接发现的命令。
+
 ## 11. 坏味道
 
 以下为 HEURISTIC：

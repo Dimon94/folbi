@@ -21,8 +21,8 @@
 </workflow>
 
 <forge>
-代码和 issue 目标归个人 GitHub 仓库 `Dimon94/folbi`。远程仓库和 CI 当前尚未创建。Issue 约定见 repo://docs/agents/issue-tracker.md。
-只有任务明确授权远程写入时才使用 `gh` 创建仓库、issue、PR 或读取 GitHub Actions；写后必须回读确认。
+代码和 issue 目标归个人 GitHub 仓库 `Dimon94/folbi`。远程仓库已创建（2026-08-20，public，MIT License）；CI 尚未启用。Issue 约定见 repo://docs/agents/issue-tracker.md。触发：建/读/评/列 issue、取 ticket、发布 PRD、triage 标签、wayfinder 地图与 ticket 编排。
+平台操作走 GitHub Web UI 或 `gh` CLI。只有任务明确授权远程写入时才使用 `gh` 创建仓库、issue、PR 或读取 GitHub Actions；写后必须回读确认。
 </forge>
 
 <branching>

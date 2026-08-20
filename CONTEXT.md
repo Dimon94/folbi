@@ -2,6 +2,14 @@
 
 本文件保存项目统一语言。代码、测试、issue 和文档使用以下 canonical term。
 
+## 使用规则
+
+- 代码、测试、issue、ADR 和文档使用本文件定义的词。
+- 一个概念只保留一个 canonical term。
+- 新概念必须有运行证据、需求或 accepted ADR 支持。
+- 需要区分近义词时，写清边界和 Avoid 列表。
+- 不确定的定义标为 Unknown。不要提前固化。
+
 ## 产品边界
 
 Folbi 是产品、仓库、Xcode 工程、scheme、Swift 模块和拟人 IP 的统一名称。

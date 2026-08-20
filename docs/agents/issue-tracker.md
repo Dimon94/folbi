@@ -1,6 +1,6 @@
 # Issue tracker
 
-本仓的代码和 issue 目标归个人 GitHub 仓库：
+本仓的代码和 issue 目标归个人 GitHub 仓库 `Dimon94/folbi`：
 
 ```text
 https://github.com/Dimon94/folbi
@@ -10,20 +10,34 @@ https://github.com/Dimon94/folbi
 
 ## 约定
 
-- 建、评论、关闭 issue：优先使用 GitHub Web UI；任务明确授权自动化时使用 `gh`。
-- 读、列 issue：按上述仓库坐标读取，并按 label 过滤。
-- triage 标签：canonical 角色映射见 repo://docs/agents/triage-labels.md。
-- PR 使用 `Closes #<number>` 关联修复。
+- **建 issue**：走 GitHub Web UI；任务明确授权自动化时才用 `gh`。
+- **读 issue**：按项目坐标打开对应 issue 页面。
+- **列 issue**：项目 issue 列表按 label 过滤。
+- **评论/关闭/打标**：用 GitHub issue 操作。
+- **triage 标签**：五个 canonical 角色与本仓 label 的映射见 repo://docs/agents/triage-labels.md。
+- **PR 关联修复**：PR 描述写 `Closes #<number>`。
+
+## 当 skill 说 "publish to the issue tracker"
+
+在本仓 issue tracker 创建 issue。
+
+## 当 skill 说 "fetch the relevant ticket"
+
+按编号打开 issue，读描述、labels 和评论。
 
 ## 阻断与依赖
 
-阻断语义以 issue body 的 `Blocked by: #x #y` 为准。判断是否解除阻断时，回读被引用 issue 的 closed 状态。
+阻断语义以 issue body 里的 `Blocked by: #x #y` 文字为准，平台原生链接只做导航。判断“是否解除阻断”要读被引用 issue 的状态是否 closed。
 
 ## Wayfinding 编排
 
-- map：一个带 `wayfinder:map` label 的 issue。
-- 子 ticket：使用 `wayfinder:map-<number>` 和一个类型 label；body 首行写 `Map: #<number>`。
-- 认领：添加 `wayfinder:claimed`；完成后写 resolution comment、关闭 issue，并更新 map。
+/wayfinder 地图与 ticket 在 issue tracker 的表达约定：
+
+- **map（地图）**：一个 issue，label `wayfinder:map`。
+- **子 ticket**：普通 issue，label `wayfinder:map-<number>`（归属哪张图）+ `wayfinder:research|prototype|grilling|task`（类型）；body 首行写 `Map: #<number>`。
+- **查某图的 frontier**：按 label `wayfinder:map-<number>` 过滤 open issue，再排除带 `wayfinder:claimed` 的、以及 body 中 `Blocked by` 未闭合的。阻断判定规则见上节。
+- **认领**：会话开工前给 ticket 加 label `wayfinder:claimed`；做完在 resolution comment 写结论、close issue、回 map 的 Decisions-so-far 追加一行索引。
+- `wayfinder:map-<number>` 标签随地图创建即时新建；静态标签（map/claimed/四种类型）在初始化时预建。
 
 ## 程序化访问
 
