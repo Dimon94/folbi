@@ -3,7 +3,7 @@
 本仓的代码和 issue 目标归个人 GitHub 仓库：
 
 ```text
-https://github.com/Dimon94/folder-pad
+https://github.com/Dimon94/folbi
 ```
 
 远程仓库当前尚未创建。在创建前，本文件只记录目标坐标，不把它当成已存在事实。

@@ -3,8 +3,8 @@ set -euo pipefail
 
 MODE="${1:-run}"
 APP_NAME="Folbi"
-SCHEME_NAME="FolderPad"
-BUNDLE_ID="com.dimon.folderpad"
+SCHEME_NAME="Folbi"
+BUNDLE_ID="com.dimon.folbi"
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DERIVED_DATA="$ROOT_DIR/.build/DerivedData"
@@ -19,10 +19,9 @@ APP_BINARY="$APP_BUNDLE/Contents/MacOS/$APP_NAME"
 INSTALL_BUNDLE="${HOME}/Applications/$APP_NAME.app"
 
 pkill -x "$APP_NAME" >/dev/null 2>&1 || true
-pkill -x "$SCHEME_NAME" >/dev/null 2>&1 || true
 
 xcodebuild build -quiet \
-  -project "$ROOT_DIR/FolderPad.xcodeproj" \
+  -project "$ROOT_DIR/Folbi.xcodeproj" \
   -scheme "$SCHEME_NAME" \
   -configuration "$CONFIGURATION" \
   -destination 'platform=macOS,arch=arm64' \

@@ -5,7 +5,7 @@
 </identity>
 
 <project>
-定位：Folbi 是个人使用的 macOS 原生轻量文件夹编辑器，提供文件树、文本编辑、语法高亮和基础文件操作，不扩展为完整 IDE。FolderPad 保留为仓库、Xcode 工程、scheme 和 Swift 模块名。
+定位：Folbi 是个人使用的 macOS 原生轻量文件夹编辑器，提供文件树、文本编辑、语法高亮和基础文件操作，不扩展为完整 IDE。
 技术栈为 SwiftUI + AppKit，编辑器复用 CodeEditSourceEditor。应用直接读写用户选择的本地文件夹，不依赖服务端。
 真相优先级：运行证据和持久状态 > 源码与测试 > 仓库文档和 accepted ADR > 当前官方文档 > 推理。
 </project>
@@ -21,7 +21,7 @@
 </workflow>
 
 <forge>
-代码和 issue 目标归个人 GitHub 仓库 `Dimon94/folder-pad`。远程仓库和 CI 当前尚未创建。Issue 约定见 repo://docs/agents/issue-tracker.md。
+代码和 issue 目标归个人 GitHub 仓库 `Dimon94/folbi`。远程仓库和 CI 当前尚未创建。Issue 约定见 repo://docs/agents/issue-tracker.md。
 只有任务明确授权远程写入时才使用 `gh` 创建仓库、issue、PR 或读取 GitHub Actions；写后必须回读确认。
 </forge>
 
@@ -67,7 +67,7 @@ Git 只 stage 语义相关路径。不要使用 git add .。
 修复缺陷时，同一最小检查必须先失败后通过。
 跳过测试时说明原因和剩余风险。
 提交、推送、创建 PR 或部署需要用户明确要求。普通实现任务只修改并验证本地工作区。
-稳定验证入口：`xcodebuild test -quiet -project FolderPad.xcodeproj -scheme FolderPad -destination 'platform=macOS,arch=arm64' -derivedDataPath .build/DerivedData -skipPackagePluginValidation CODE_SIGNING_ALLOWED=NO`。
+稳定验证入口：`xcodebuild test -quiet -project Folbi.xcodeproj -scheme Folbi -destination 'platform=macOS,arch=arm64' -derivedDataPath .build/DerivedData -skipPackagePluginValidation CODE_SIGNING_ALLOWED=NO`。
 </done_definition>
 
 <review_standard>

@@ -4,7 +4,7 @@
 
 ## 产品边界
 
-Folbi 是产品显示名和拟人 IP 名。FolderPad 保留为仓库名、Xcode 工程名、scheme、Swift 模块名和功能副标题。
+Folbi 是产品、仓库、Xcode 工程、scheme、Swift 模块和拟人 IP 的统一名称。
 
 Folbi 是个人使用的 macOS 轻量文件夹编辑器。它打开一个本地文件夹，展示完整文件树，并编辑其中的 UTF-8 文本文件。
 
@@ -31,7 +31,10 @@ Folbi 是个人使用的 macOS 轻量文件夹编辑器。它打开一个本地�
 : 文档在编辑缓冲区存在未保存修改时又被其他进程改动。保存前必须让用户选择覆盖、重新载入或取消。
 
 **编辑器主题（Editor Theme）**
-: 语法高亮与编辑区颜色组合。首版提供 Default、GitHub 和 Solarized。
+: 语法高亮与编辑区颜色组合。首版提供 Default、GitHub 和 Solarized，每套自带明暗两种配色，随外观模式切换。
+
+**外观模式（Appearance Mode）**
+: 应用界面的明暗外观设置：跟随系统、浅色或深色。选择持久化在 UserDefaults（键 `appearanceMode`），切换即时生效；编辑器主题随外观选用明或暗配色。
 
 **工作区模型（Workspace Model）**
 : 根文件夹、文件树、当前文档、编辑缓冲区和冲突状态的唯一 owner。
