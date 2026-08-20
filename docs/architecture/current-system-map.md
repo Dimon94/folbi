@@ -11,7 +11,7 @@ Status: active
 - 本地运行：`script/build_and_run.sh` 统一执行关闭旧进程、构建和启动；`.codex/environments/environment.toml` 将 Codex `Run` 动作指向该脚本。
 - 持久状态：用户打开的本地文件；应用不维护数据库或配置服务。
 - 权限边界：首版为未沙盒化本地应用，直接访问用户选择的根文件夹。
-- 外部系统：无。GitHub 远程仓库和 CI 尚未创建。
+- 外部系统：GitHub 远程仓库 `Dimon94/folbi`（2026-08-20 创建，public，issue tracker 与 wayfinding 编排所在）；CI 尚未创建。
 
 ## 链路
 
