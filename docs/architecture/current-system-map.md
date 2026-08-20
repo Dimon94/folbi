@@ -7,6 +7,7 @@ Status: active
 - 产品、仓库、Xcode 工程、scheme 和 Swift 模块：Folbi。
 - 平台：macOS 13+；Swift 5 语言模式；SwiftUI + AppKit。
 - 编辑器：CodeEditSourceEditor 0.15.2，经 Swift Package Manager 精确锁定。
+- Markdown 渲染库：MarkdownUI 2.4.1，经 Swift Package Manager 精确锁定；传递依赖 NetworkImage、swift-cmark。
 - 入口：`FolbiApp` 的单窗口 SwiftUI scene。
 - 本地运行：`script/build_and_run.sh` 统一执行关闭旧进程、构建和启动；`.codex/environments/environment.toml` 将 Codex `Run` 动作指向该脚本。
 - 持久状态：用户打开的本地文件；外观模式设置存于 UserDefaults（键 `appearanceMode`）；应用不维护数据库或配置服务。
