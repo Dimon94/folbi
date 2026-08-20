@@ -9,7 +9,7 @@ Status: active
 - 编辑器：CodeEditSourceEditor 0.15.2，经 Swift Package Manager 精确锁定。
 - 入口：`FolbiApp` 的单窗口 SwiftUI scene。
 - 本地运行：`script/build_and_run.sh` 统一执行关闭旧进程、构建和启动；`.codex/environments/environment.toml` 将 Codex `Run` 动作指向该脚本。
-- 持久状态：用户打开的本地文件；应用不维护数据库或配置服务。
+- 持久状态：用户打开的本地文件；外观模式设置存于 UserDefaults（键 `appearanceMode`）；应用不维护数据库或配置服务。
 - 权限边界：首版为未沙盒化本地应用，直接访问用户选择的根文件夹。
 - 外部系统：GitHub 远程仓库 `Dimon94/folbi`（2026-08-20 创建，public，issue tracker 与 wayfinding 编排所在）；CI 尚未创建。
 
@@ -28,6 +28,7 @@ Status: active
 | `FolderTreeView` | `NSOutlineView` 展示和右键菜单 | 文件树真相 | SwiftUI representable | app build / 手工交互 |
 | `ContentView` / `EditorPane` | 窗口布局、工具栏和编辑器绑定 | 磁盘状态 | SwiftUI views | app build / 手工交互 |
 | `EditorThemes` | 三个主题到编辑器主题结构的映射 | 文档内容 | `EditorThemes.theme` | app build |
+| `AppearanceMode` | 外观模式三态、到 `ColorScheme` 的映射和菜单展示名 | 具体配色（归 `EditorThemes`） | `AppearanceMode` enum | `AppearanceModeTests` |
 
 ## 不变量
 
@@ -39,7 +40,7 @@ Status: active
 
 ## 验证
 
-稳定构建和测试命令见根 repo://AGENTS.md。本地启动检查使用 `./script/build_and_run.sh --verify`。当前核心测试覆盖隐藏文件、排序、大小上限和新建名称校验；编辑器交互仍需手工 smoke test。
+稳定构建和测试命令见根 repo://AGENTS.md。本地启动检查使用 `./script/build_and_run.sh --verify`。当前核心测试覆盖隐藏文件、排序、大小上限、新建名称校验和外观模式映射；编辑器交互仍需手工 smoke test。
 
 ## PROTOCOL
 

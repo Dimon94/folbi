@@ -5,17 +5,19 @@ import SwiftUI
 struct FolbiApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var model = WorkspaceModel.shared
+    @AppStorage("appearanceMode") private var appearanceMode: AppearanceMode = .system
 
     var body: some Scene {
         Window("Folbi", id: "main") {
             ContentView(model: model)
                 .frame(minWidth: 720, minHeight: 480)
+                .preferredColorScheme(appearanceMode.colorScheme)
         }
         .defaultSize(width: 1_100, height: 720)
         .windowResizability(.contentMinSize)
         .windowToolbarStyle(.unified)
         .commands {
-            FolbiCommands(model: model)
+            FolbiCommands(model: model, appearanceMode: $appearanceMode)
         }
     }
 }
@@ -28,8 +30,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
 private struct FolbiCommands: Commands {
     @ObservedObject var model: WorkspaceModel
+    @Binding var appearanceMode: AppearanceMode
 
     var body: some Commands {
+        CommandGroup(after: .sidebar) {
+            Picker("外观", selection: $appearanceMode) {
+                ForEach(AppearanceMode.allCases) { mode in
+                    Text(mode.displayName).tag(mode)
+                }
+            }
+        }
+
         CommandGroup(replacing: .newItem) {
             Button("打开文件夹…") {
                 model.chooseFolder()
