@@ -24,6 +24,21 @@ Folbi 是一个轻量、原生的 macOS 文件夹编辑器。它保留日常 Age
 
 要求 Xcode 26.6 或兼容版本。首次打开 [FolderPad.xcodeproj](FolderPad.xcodeproj) 时，Xcode 可能要求信任 SwiftLint package plugin。
 
+在 Codex App 中使用 `Run` 动作，或直接运行：
+
+```bash
+./script/build_and_run.sh
+./script/build_and_run.sh --verify
+```
+
+安装一份仅供本机使用的 Release App：
+
+```bash
+./script/build_and_run.sh --install
+```
+
+安装位置是 `~/Applications/Folbi.app`。该本地包未签名、未公证，不用于公开分发。
+
 ```bash
 xcodebuild test -quiet \
   -project FolderPad.xcodeproj \

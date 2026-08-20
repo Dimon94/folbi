@@ -8,6 +8,7 @@ Status: active
 - 平台：macOS 13+；Swift 5 语言模式；SwiftUI + AppKit。
 - 编辑器：CodeEditSourceEditor 0.15.2，经 Swift Package Manager 精确锁定。
 - 入口：`FolderPadApp` 的单窗口 SwiftUI scene。
+- 本地运行：`script/build_and_run.sh` 统一执行关闭旧进程、构建和启动；`.codex/environments/environment.toml` 将 Codex `Run` 动作指向该脚本。
 - 持久状态：用户打开的本地文件；应用不维护数据库或配置服务。
 - 权限边界：首版为未沙盒化本地应用，直接访问用户选择的根文件夹。
 - 外部系统：无。GitHub 远程仓库和 CI 尚未创建。
@@ -38,7 +39,7 @@ Status: active
 
 ## 验证
 
-稳定构建和测试命令见根 repo://AGENTS.md。当前核心测试覆盖隐藏文件、排序、大小上限和新建名称校验；编辑器交互仍需手工 smoke test。
+稳定构建和测试命令见根 repo://AGENTS.md。本地启动检查使用 `./script/build_and_run.sh --verify`。当前核心测试覆盖隐藏文件、排序、大小上限和新建名称校验；编辑器交互仍需手工 smoke test。
 
 ## PROTOCOL
 
