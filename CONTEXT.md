@@ -1,12 +1,14 @@
-# FolderPad Context
+# Folbi Context
 
 本文件保存项目统一语言。代码、测试、issue 和文档使用以下 canonical term。
 
 ## 产品边界
 
-FolderPad 是个人使用的 macOS 轻量文件夹编辑器。它打开一个本地文件夹，展示完整文件树，并编辑其中的 UTF-8 文本文件。
+Folbi 是产品显示名和拟人 IP 名。FolderPad 保留为仓库名、Xcode 工程名、scheme、Swift 模块名和功能副标题。
 
-首版不提供 LSP、Git、终端、插件、自动保存或应用分发。不要把它描述为完整 IDE。
+Folbi 是个人使用的 macOS 轻量文件夹编辑器。它打开一个本地文件夹，展示完整文件树，并编辑其中的 UTF-8 文本文件。
+
+首版不提供 LSP、Git、终端、插件、自动保存或公开分发。不要把它描述为完整 IDE。
 
 ## 已确认词汇
 

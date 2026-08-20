@@ -1,6 +1,14 @@
-# FolderPad
+<p align="center">
+  <img src="design/logo/folbi-logo.png" alt="Folbi Logo" width="180">
+</p>
 
-FolderPad 是一个轻量、原生的 macOS 文件夹编辑器。它保留日常 Agent 工作真正需要的部分：完整文件树、文本编辑、语法高亮和基础文件操作。
+# Folbi
+
+Folbi 是一个轻量、原生的 macOS 文件夹编辑器。它保留日常 Agent 工作真正需要的部分：完整文件树、文本编辑、语法高亮和基础文件操作。
+
+产品显示名是 Folbi。仓库、Xcode 工程、scheme 和 Swift 模块继续使用 FolderPad。
+
+主 Logo 使用 Folbi 柠檬文件夹形象。原图位于 `design/logo/folbi-logo.png`，macOS App Icon 位于 `FolderPad/Assets.xcassets/AppIcon.appiconset`。
 
 ## 首版能力
 
@@ -26,7 +34,7 @@ xcodebuild test -quiet \
   CODE_SIGNING_ALLOWED=NO
 ```
 
-测试完成后，调试应用位于 `.build/DerivedData/Build/Products/Debug/FolderPad.app`。
+测试完成后，调试应用位于 `.build/DerivedData/Build/Products/Debug/Folbi.app`。
 
 ## GitHub
 

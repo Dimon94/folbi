@@ -7,7 +7,7 @@ struct FolderPadApp: App {
     @StateObject private var model = WorkspaceModel.shared
 
     var body: some Scene {
-        Window("FolderPad", id: "main") {
+        Window("Folbi", id: "main") {
             ContentView(model: model)
                 .frame(minWidth: 720, minHeight: 480)
         }

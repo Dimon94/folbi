@@ -4,7 +4,7 @@ Status: active
 
 ## 当前事实
 
-- 产品：FolderPad，个人使用的 macOS 轻量文件夹编辑器。
+- 产品：Folbi，个人使用的 macOS 轻量文件夹编辑器；仓库、Xcode 工程、scheme 和 Swift 模块保留 `FolderPad`。
 - 平台：macOS 13+；Swift 5 语言模式；SwiftUI + AppKit。
 - 编辑器：CodeEditSourceEditor 0.15.2，经 Swift Package Manager 精确锁定。
 - 入口：`FolderPadApp` 的单窗口 SwiftUI scene。

@@ -5,7 +5,7 @@
 </identity>
 
 <project>
-定位：FolderPad 是个人使用的 macOS 原生轻量文件夹编辑器，提供文件树、文本编辑、语法高亮和基础文件操作，不扩展为完整 IDE。
+定位：Folbi 是个人使用的 macOS 原生轻量文件夹编辑器，提供文件树、文本编辑、语法高亮和基础文件操作，不扩展为完整 IDE。FolderPad 保留为仓库、Xcode 工程、scheme 和 Swift 模块名。
 技术栈为 SwiftUI + AppKit，编辑器复用 CodeEditSourceEditor。应用直接读写用户选择的本地文件夹，不依赖服务端。
 真相优先级：运行证据和持久状态 > 源码与测试 > 仓库文档和 accepted ADR > 当前官方文档 > 推理。
 </project>
