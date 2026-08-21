@@ -47,6 +47,12 @@ Folbi 是个人使用的 macOS 轻量文件夹编辑器。它打开一个本地�
 **工作区模型（Workspace Model）**
 : 根文件夹、文件树、当前文档、编辑缓冲区和冲突状态的唯一 owner。
 
+**Markdown 预览（Markdown Preview）**
+: Markdown 文档的单面板渲染查看功能。渲染走 MarkdownUI（固定 .gitHub 主题）；只认 6 个扩展名（`md / mkd / mkdn / mdwn / mdown / markdown`，小写不敏感），无扩展名文件不启用；入口为工具栏 toggle 按钮与 View 菜单「切换预览」（⌘⇧V 单一绑定在菜单项上）。
+
+**预览模式（Preview Mode）**
+: 单面板下与编辑模式互斥的面板状态。内容源为编辑缓冲区（含未保存修改），进入时一次性全量渲染，预览期间不随编辑刷新。预览开关是 ContentView 的视图层状态，不进入工作区模型；切换文档时总是重置回编辑模式。
+
 ## Avoid
 
 - 用“项目”指代 Root Folder。

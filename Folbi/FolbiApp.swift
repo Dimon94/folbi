@@ -34,6 +34,16 @@ private struct FolbiCommands: Commands {
 
     var body: some Commands {
         CommandGroup(after: .sidebar) {
+            // 快捷键 ⌘⇧V 单一绑定在菜单项上；非 Markdown 文档（含无文档）时菜单项隐藏。
+            if MarkdownPreviewability.isPreviewable(documentURL: model.documentURL) {
+                Button("切换预览") {
+                    NotificationCenter.default.post(name: .toggleMarkdownPreview, object: nil)
+                }
+                .keyboardShortcut("v", modifiers: [.command, .shift])
+
+                Divider()
+            }
+
             Picker("外观", selection: $appearanceMode) {
                 ForEach(AppearanceMode.allCases) { mode in
                     Text(mode.displayName).tag(mode)

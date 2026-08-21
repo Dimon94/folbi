@@ -19,6 +19,7 @@ Status: active
     用户 -> ContentView / FolderTreeView -> WorkspaceModel -> FileManager / FSEvents -> 本地文件夹
                               |
                               +-> EditorPane -> CodeEditSourceEditor -> CodeEditLanguages
+                              +-> MarkdownPreviewView（预览模式，内容源 = 编辑缓冲区） -> MarkdownUI
 
 ## 模块
 
@@ -27,7 +28,8 @@ Status: active
 | `WorkspaceModel` | 根文件夹、当前文档、编辑缓冲区、保存和冲突裁决 | 编辑器渲染 | 用户动作方法与可观察状态 | `FolbiCoreTests` + app build |
 | `FileNode` | 一个目录的惰性子节点快照 | 全局选择、磁盘写入 | `loadChildren`、`refreshLoadedSubtree` | `FolbiCoreTests` |
 | `FolderTreeView` | `NSOutlineView` 展示和右键菜单 | 文件树真相 | SwiftUI representable | app build / 手工交互 |
-| `ContentView` / `EditorPane` | 窗口布局、工具栏和编辑器绑定 | 磁盘状态 | SwiftUI views | app build / 手工交互 |
+| `ContentView` / `EditorPane` | 窗口布局、工具栏、编辑器绑定、编辑/预览模式切换与预览状态 | 磁盘状态 | SwiftUI views | app build / 手工交互 |
+| `MarkdownPreviewView` | Markdown 预览渲染与「是否可预览」判定 | 磁盘状态、编辑缓冲区内容 | `MarkdownPreviewView`、`MarkdownPreviewability.isPreviewable` | `MarkdownPreviewabilityTests` + app build / 手工交互 |
 | `EditorThemes` | 三个主题到编辑器主题结构的映射 | 文档内容 | `EditorThemes.theme` | app build |
 | `AppearanceMode` | 外观模式三态、到 `ColorScheme` 的映射和菜单展示名 | 具体配色（归 `EditorThemes`） | `AppearanceMode` enum | `AppearanceModeTests` |
 
