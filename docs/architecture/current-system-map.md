@@ -19,7 +19,7 @@ Status: active
     用户 -> ContentView / FolderTreeView -> WorkspaceModel -> FileManager / FSEvents -> 本地文件夹
                               |
                               +-> EditorPane -> CodeEditSourceEditor -> CodeEditLanguages
-                              +-> MarkdownPreviewView（预览模式，内容源 = 编辑缓冲区） -> MarkdownUI
+                              +-> MarkdownPreviewView（预览模式，内容源 = 编辑缓冲区） -> FenceAwareChunker 分块（后台线程） -> 每块一个 MarkdownUI 视图（LazyVStack 懒渲染）
 
 ## 模块
 
@@ -29,7 +29,8 @@ Status: active
 | `FileNode` | 一个目录的惰性子节点快照 | 全局选择、磁盘写入 | `loadChildren`、`refreshLoadedSubtree` | `FolbiCoreTests` |
 | `FolderTreeView` | `NSOutlineView` 展示和右键菜单 | 文件树真相 | SwiftUI representable | app build / 手工交互 |
 | `ContentView` / `EditorPane` | 窗口布局、工具栏、编辑器绑定、编辑/预览模式切换与预览状态 | 磁盘状态 | SwiftUI views | app build / 手工交互 |
-| `MarkdownPreviewView` | Markdown 预览渲染与「是否可预览」判定 | 磁盘状态、编辑缓冲区内容 | `MarkdownPreviewView`、`MarkdownPreviewability.isPreviewable` | `MarkdownPreviewabilityTests` + app build / 手工交互 |
+| `MarkdownPreviewView` | Markdown 预览的分块懒渲染与「是否可预览」判定 | 磁盘状态、编辑缓冲区内容 | `MarkdownPreviewView`、`MarkdownPreviewability.isPreviewable` | `MarkdownPreviewabilityTests` + app build / 手工交互 |
+| `FenceAwareChunker` | Markdown 源文本按顶层块边界的 fence 感知切分（纯函数） | 磁盘状态、缓冲区状态 | `FenceAwareChunker.split` | `FenceAwareChunkerTests` |
 | `EditorThemes` | 三个主题到编辑器主题结构的映射 | 文档内容 | `EditorThemes.theme` | app build |
 | `AppearanceMode` | 外观模式三态、到 `ColorScheme` 的映射和菜单展示名 | 具体配色（归 `EditorThemes`） | `AppearanceMode` enum | `AppearanceModeTests` |
 
