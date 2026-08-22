@@ -3,7 +3,8 @@ import XCTest
 @testable import Folbi
 
 /// 钉住预览图片加载的分支判定（#16）：边界内可解码 → 本地加载；
-/// 缺失/越界/SVG/坏文件/缺上下文 → 占位；http(s) → 默认网络加载分支。
+/// 缺失/越界/SVG/坏文件/缺上下文/非 http(s) scheme → 占位；
+/// http(s) → 默认网络加载分支。
 /// 越界用例在错误实现下必失败：若丢掉解析器直接读盘，真实存在的
 /// outside.png 会被错误加载而非占位。
 final class PreviewImageProviderTests: XCTestCase {
@@ -108,6 +109,21 @@ final class PreviewImageProviderTests: XCTestCase {
             return XCTFail("远程 http(s) 图片应走网络加载分支，得到 \(load)")
         }
         XCTAssertEqual(url, remote)
+    }
+
+    func testUnsupportedSchemeFallsToPlaceholder() {
+        let unsupported = URL(string: "ftp://example.com/pic.png")!
+
+        let load = PreviewImageProvider.classify(
+            url: unsupported,
+            documentURL: nil,
+            rootURL: nil
+        )
+
+        guard case .placeholder(let name) = load else {
+            return XCTFail("非 http(s) scheme 应 fail closed 走占位，得到 \(load)")
+        }
+        XCTAssertEqual(name, "pic.png")
     }
 
     func testNilURLFallsToPlaceholder() {

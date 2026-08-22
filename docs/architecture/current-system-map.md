@@ -19,7 +19,7 @@ Status: active
     用户 -> ContentView / FolderTreeView -> WorkspaceModel -> FileManager / FSEvents -> 本地文件夹
                               |
                               +-> EditorPane -> CodeEditSourceEditor -> CodeEditLanguages
-                              +-> MarkdownPreviewView（预览模式，内容源 = 编辑缓冲区） -> FenceAwareChunker 分块（后台线程） -> 每块一个 MarkdownUI 视图（LazyVStack 懒渲染）
+                              +-> MarkdownPreviewView（预览模式，内容源 = 编辑缓冲区） -> FenceAwareChunker 分块（后台线程） -> 每块一个 MarkdownUI 视图（LazyVStack 懒渲染） -> PreviewImageProvider -> ImagePathResolver（本地）/ MarkdownUI 默认网络加载（http(s)）
 
 ## 模块
 
@@ -31,6 +31,8 @@ Status: active
 | `ContentView` / `EditorPane` | 窗口布局、工具栏、编辑器绑定、编辑/预览模式切换与预览状态 | 磁盘状态 | SwiftUI views | app build / 手工交互 |
 | `MarkdownPreviewView` | Markdown 预览的分块懒渲染与「是否可预览」判定 | 磁盘状态、编辑缓冲区内容 | `MarkdownPreviewView`、`MarkdownPreviewability.isPreviewable` | `MarkdownPreviewabilityTests` + app build / 手工交互 |
 | `FenceAwareChunker` | Markdown 源文本按顶层块边界的 fence 感知切分（纯函数） | 磁盘状态、缓冲区状态 | `FenceAwareChunker.split` | `FenceAwareChunkerTests` |
+| `ImagePathResolver` | Markdown 本地图片路径的文档目录解析、根文件夹边界与可读性判定 | 网络加载、图片解码与渲染 | `ImagePathResolver.resolve` | `ImagePathResolverTests` |
+| `PreviewImageProvider` | 预览图片的本地、http(s) 与占位分支；本地图片解码 | 本地路径边界规则、远程网络传输 | `PreviewImageProvider.makeImage`、`PreviewImageProvider.classify` | `PreviewImageProviderTests` + app build / 手工交互 |
 | `EditorThemes` | 三个主题到编辑器主题结构的映射 | 文档内容 | `EditorThemes.theme` | app build |
 | `AppearanceMode` | 外观模式三态、到 `ColorScheme` 的映射和菜单展示名 | 具体配色（归 `EditorThemes`） | `AppearanceMode` enum | `AppearanceModeTests` |
 

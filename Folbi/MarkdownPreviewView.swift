@@ -36,6 +36,11 @@ enum MarkdownPreviewability {
 /// 加载走 PreviewImageProvider——本地限根文件夹边界内（fail closed 占位），
 /// 远程 http(s) 由 MarkdownUI 默认网络加载；相对文件链接不做 app 内跳转（死点击已知）。
 struct MarkdownPreviewView: View {
+    private struct RenderChunk: Identifiable {
+        let id: UUID
+        let text: String
+    }
+
     /// 内容源 = 编辑缓冲区文本。
     let text: String
     /// 页面背景：取编辑器主题背景，编辑/预览切换时底色不跳变。
@@ -45,7 +50,7 @@ struct MarkdownPreviewView: View {
     /// 图片加载边界（#16）：本地图片只加载根文件夹内的文件。
     let rootURL: URL?
 
-    @State private var chunks: [String]?
+    @State private var chunks: [RenderChunk]?
     /// 渲染序号：切分在后台线程，外部修改连发时晚到的旧结果不得覆盖新结果。
     /// 读写在主线程，经 @State 存储，跨任务捕获比较的是最新值。
     @State private var renderSequence = 0
@@ -66,10 +71,10 @@ struct MarkdownPreviewView: View {
         ScrollView {
             if let chunks {
                 LazyVStack(alignment: .leading, spacing: 0) {
-                    ForEach(Array(chunks.enumerated()), id: \.offset) { _, chunk in
+                    ForEach(chunks) { chunk in
                         // 固定 .gitHub 渲染主题；BackgroundColor(nil) 清掉它自带的页面底色
                         // （亮色白/暗色 #18191D），页面背景统一由编辑器主题背景给出。
-                        Markdown(chunk, imageBaseURL: documentURL)
+                        Markdown(chunk.text, imageBaseURL: documentURL)
                             .markdownTheme(.gitHub)
                             .markdownImageProvider(PreviewImageProvider(documentURL: documentURL, rootURL: rootURL))
                             .markdownTextStyle {
@@ -99,7 +104,7 @@ struct MarkdownPreviewView: View {
             let result = FenceAwareChunker.split(source)
             await MainActor.run {
                 guard sequence == renderSequence else { return }
-                chunks = result
+                chunks = result.map { RenderChunk(id: UUID(), text: $0) }
             }
         }
     }

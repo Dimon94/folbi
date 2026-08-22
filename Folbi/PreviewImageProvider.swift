@@ -10,6 +10,7 @@ import SwiftUI
 ///   边界、symlink、存在性与可读性，`../` 逃逸根文件夹 fail closed；缺失、不可读、解码
 ///   失败与本地 SVG（可渲染性 Unknown，ticket 裁决按占位处理）统一走占位视图，不崩溃。
 /// - 远程 http(s)：委托 MarkdownUI 默认网络加载（DefaultImageProvider），零额外代码。
+/// - 其他 scheme：不进入网络加载，fail closed 走占位视图。
 struct PreviewImageProvider: ImageProvider {
     /// 解析基准与边界：当前文档与根文件夹。预览只在两者俱在时可达；
     /// 缺上下文时到达本 provider 的显式 file URL 仍 fail closed 走占位
@@ -38,9 +39,9 @@ struct PreviewImageProvider: ImageProvider {
     enum ImageLoad {
         /// 根文件夹边界内、存在可读且可解码的本地图片。
         case local(NSImage)
-        /// 远程 URL，交 MarkdownUI 默认网络加载。
+        /// 远程 http(s) URL，交 MarkdownUI 默认网络加载。
         case remote(URL)
-        /// 占位：URL 为空、越界、缺失、不可读、解码失败或本地 SVG。
+        /// 占位：URL 为空、scheme 不支持、越界、缺失、不可读、解码失败或本地 SVG。
         case placeholder(name: String?)
     }
 
@@ -51,8 +52,15 @@ struct PreviewImageProvider: ImageProvider {
         rootURL: URL?
     ) -> ImageLoad {
         guard let url else { return .placeholder(name: nil) }
-        guard url.isFileURL else { return .remote(url) }
         let name = url.lastPathComponent
+        guard url.isFileURL else {
+            switch url.scheme?.lowercased() {
+            case "http", "https":
+                return .remote(url)
+            default:
+                return .placeholder(name: name)
+            }
+        }
         guard let documentURL, let rootURL else { return .placeholder(name: name) }
         // 本地 SVG 可渲染性 Unknown（ticket #16 推断不支持）：按缺失/不可读走占位分支。
         guard url.pathExtension.lowercased() != "svg" else { return .placeholder(name: name) }
