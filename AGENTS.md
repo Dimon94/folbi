@@ -48,7 +48,7 @@ main 只接收已验证提交；票收口即删树删分支。
 </layer_contracts>
 
 <code_style>
-写或改代码遵循 repo://docs/agents/coding-standards.md。
+代码规范见 repo://docs/agents/coding-standards.md。触发：新增或修改代码、注释或公开 API 文档。完成：当前 diff 命中的规则已逐项检查。
 局部 AGENTS.md、accepted ADR、外部合同和运行证据优先于通用规范。
 规范只约束当前变更和阻断当前正确性的既有问题。
 </code_style>
@@ -75,7 +75,7 @@ Git 只 stage 语义相关路径。不要使用 git add .。
 Standards 轴先审 Coding，再审 Architecture。Spec 轴独立核对需求。
 没有 finding 时，也说明测试缺口、未验证路径和剩余风险。
 只报告能由代码、测试、运行证据或合同证明的问题。
-详细检查见 repo://docs/agents/quality-standards.md。触发：代码审查、重构、自检或发现坏味道。
+测试与审查规范见 repo://docs/agents/quality-standards.md。触发：新增、修改或删除测试，评估覆盖面，代码审查、重构、自检或发现坏味道。测试变更完整应用第 6 节；审查完成第 7 节。
 </review_standard>
 
 <principles>
