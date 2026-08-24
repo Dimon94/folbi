@@ -10,7 +10,7 @@ Status: active
 - Markdown 渲染库：MarkdownUI 2.4.1，经 Swift Package Manager 精确锁定；传递依赖 NetworkImage、swift-cmark。
 - 入口：`FolbiApp` 的单窗口 SwiftUI scene。
 - 本地运行：`script/build_and_run.sh` 统一执行关闭旧进程、构建和启动；`.codex/environments/environment.toml` 将 Codex `Run` 动作指向该脚本。
-- 持久状态：用户打开的本地文件；外观模式设置存于 UserDefaults（键 `appearanceMode`）；应用不维护数据库或配置服务。
+- 持久状态：用户打开的本地文件；外观模式设置存于 UserDefaults（键 `appearanceMode`）；最近文件夹列表以标准化路径数组存于 UserDefaults（键 `recentFolderPaths`）；应用不维护数据库或配置服务。
 - 权限边界：首版为未沙盒化本地应用，直接访问用户选择的根文件夹。
 - 外部系统：GitHub 远程仓库 `Dimon94/folbi`（2026-08-20 创建，public，issue tracker 与 wayfinding 编排所在）；CI 尚未创建。
 
@@ -26,7 +26,9 @@ Status: active
 
 | Module | Owns | Does not own | Public interface | Verification |
 | --- | --- | --- | --- | --- |
-| `WorkspaceModel` | 根文件夹、当前文档、当前图片、编辑缓冲区、选中分流、保存和冲突裁决 | 编辑器与图片渲染 | 用户动作方法（`openFile` 分流）与可观察状态 | `FolbiCoreTests`、`WorkspaceModelImageRoutingTests` + app build |
+| `WorkspaceModel` | 根文件夹、最近文件夹、启动恢复、当前文档、当前图片、编辑缓冲区、选中分流、保存和冲突裁决 | 编辑器与图片渲染 | 用户动作方法（`openFile` 分流）与可观察状态 | `FolbiCoreTests`、`WorkspaceModelImageRoutingTests`、`WorkspaceModelRecentFoldersTests` + app build |
+| `RecentFolderList` | 最近文件夹的路径标准化、MRU 去重、10 条上限、移除和清空 | 持久读写与根文件夹打开 | `record`、`remove`、`clear`、`paths` | `RecentFolderListTests` |
+| `RecentFoldersStore` | UserDefaults 键 `recentFolderPaths` 的路径数组读写与损坏容错 | MRU 规则与工作区状态 | `load`、`save` | `RecentFoldersStoreTests` |
 | `FileNode` | 一个目录的惰性子节点快照 | 全局选择、磁盘写入 | `loadChildren`、`refreshLoadedSubtree` | `FolbiCoreTests` |
 | `FolderTreeView` | `NSOutlineView` 展示和右键菜单 | 文件树真相 | SwiftUI representable | app build / 手工交互 |
 | `ContentView` / `EditorPane` | 窗口布局、工具栏、编辑器绑定、编辑/预览模式切换与预览状态、detail 三态分流（当前图片/当前文档/空态） | 磁盘状态、互斥不变量 | SwiftUI views | app build / 手工交互 |

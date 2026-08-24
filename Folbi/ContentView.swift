@@ -103,6 +103,9 @@ struct ContentView: View {
         .onChange(of: model.documentURL) { _ in
             previewingDocumentURL = nil
         }
+        .onAppear {
+            model.restoreRootFolderAtLaunch()
+        }
         .onReceive(NotificationCenter.default.publisher(for: .toggleMarkdownPreview)) { _ in
             togglePreview()
         }

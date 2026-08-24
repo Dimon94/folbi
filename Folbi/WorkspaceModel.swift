@@ -140,6 +140,7 @@ final class WorkspaceModel: ObservableObject {
     static let shared = WorkspaceModel()
 
     @Published private(set) var rootNode: FileNode?
+    @Published private(set) var recentFolders: RecentFolderList
     @Published private(set) var treeRevision = 0
     @Published var treeSelectionURL: URL?
     @Published private(set) var documentURL: URL?
@@ -164,7 +165,14 @@ final class WorkspaceModel: ObservableObject {
     private var savedText = ""
     private var fingerprint: FileFingerprint?
     private var isApplyingDiskContent = false
+    private var hasAttemptedLaunchRestoration = false
+    private let recentFoldersStore: RecentFoldersStore
     private let watcher = FSEventsWatcher()
+
+    init(recentFoldersStore: RecentFoldersStore = RecentFoldersStore()) {
+        self.recentFoldersStore = recentFoldersStore
+        recentFolders = recentFoldersStore.load()
+    }
 
     func chooseFolder() {
         let panel = NSOpenPanel()
@@ -178,12 +186,19 @@ final class WorkspaceModel: ObservableObject {
         openRootFolder(url)
     }
 
-    func openRootFolder(_ url: URL) {
-        guard confirmCanAbandonCurrentDocument() else { return }
+    /// IN: URL 可指向候选根文件夹；调用前由本方法统一处理未保存修改确认。
+    /// OUT: 成功时切换根文件夹，并在唯一写入点记录最近文件夹；返回 true。
+    /// PARAM: presentsError 为 false 时只抑制无效目录弹框，供启动恢复静默失败使用。
+    /// FAIL: 用户取消或目标不是目录时返回 false，且不改变最近文件夹。
+    @discardableResult
+    func openRootFolder(_ url: URL, presentsError: Bool = true) -> Bool {
+        guard confirmCanAbandonCurrentDocument() else { return false }
         var isDirectory: ObjCBool = false
         guard FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory), isDirectory.boolValue else {
-            presentError(FolbiError.notRegularFile, title: "无法打开文件夹")
-            return
+            if presentsError {
+                presentError(FolbiError.notRegularFile, title: "无法打开文件夹")
+            }
+            return false
         }
 
         let root = FileNode(url: url, isDirectory: true)
@@ -194,6 +209,22 @@ final class WorkspaceModel: ObservableObject {
         watcher.start(rootURL: root.url) { [weak self] in
             self?.handleFileSystemChange()
         }
+        recentFolders.record(root.url)
+        recentFoldersStore.save(recentFolders)
+        return true
+    }
+
+    /// CHAIN: 窗口内容首次出现且当前无根文件夹时，只尝试最近文件夹首条。
+    /// FAIL: 首条失效时静默移除并持久化；本次启动不尝试次条。
+    func restoreRootFolderAtLaunch() {
+        guard !hasAttemptedLaunchRestoration, rootNode == nil else { return }
+        hasAttemptedLaunchRestoration = true
+        guard let path = recentFolders.paths.first else { return }
+
+        let url = URL(fileURLWithPath: path, isDirectory: true)
+        guard !openRootFolder(url, presentsError: false) else { return }
+        recentFolders.remove(url)
+        recentFoldersStore.save(recentFolders)
     }
 
     /// 选中文件的分流入口（spec #25 §1/§2、ADR 0001 决策 2/3）。
