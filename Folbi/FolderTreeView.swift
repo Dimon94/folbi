@@ -1,6 +1,20 @@
 import AppKit
 import SwiftUI
 
+// 文件树图标三态（spec #25 §6）：文件夹 folder / 图片 photo / 其他文件 doc。
+// 图片按扩展名粗判、小写不敏感，仅作显示提示，不做内容嗅探；打开判定仍按 spec §2。
+// 已知并接受的不一致：无扩展名图片显示 doc。
+enum FileTreeIcon {
+    private static let imageExtensions: Set<String> = [
+        "png", "jpg", "jpeg", "jpe", "gif", "heic", "heif", "webp"
+    ]
+
+    static func symbolName(for url: URL, isDirectory: Bool) -> String {
+        if isDirectory { return "folder" }
+        return imageExtensions.contains(url.pathExtension.lowercased()) ? "photo" : "doc"
+    }
+}
+
 struct FolderTreeView: NSViewRepresentable {
     @ObservedObject var model: WorkspaceModel
 
@@ -98,7 +112,7 @@ struct FolderTreeView: NSViewRepresentable {
             cell.textField?.stringValue = node.name
             cell.textField?.toolTip = node.url.path
             cell.imageView?.image = NSImage(
-                systemSymbolName: node.isDirectory ? "folder" : "doc",
+                systemSymbolName: FileTreeIcon.symbolName(for: node.url, isDirectory: node.isDirectory),
                 accessibilityDescription: nil
             )
             cell.setAccessibilityLabel(node.name)

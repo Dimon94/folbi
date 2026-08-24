@@ -143,7 +143,7 @@ private struct EmptyEditor: View {
                 .font(.system(size: 38))
                 .foregroundStyle(.secondary)
                 .accessibilityHidden(true)
-            Text(model.rootNode == nil ? "打开一个文件夹开始" : "从左侧选择一个文本文件")
+            Text(model.rootNode == nil ? "打开一个文件夹开始" : "从左侧选择一个文件")
                 .font(.title3)
             if model.rootNode == nil {
                 Button("打开文件夹…") {
