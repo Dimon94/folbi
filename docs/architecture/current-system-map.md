@@ -19,20 +19,22 @@ Status: active
     用户 -> ContentView / FolderTreeView -> WorkspaceModel -> FileManager / FSEvents -> 本地文件夹
                               |
                               +-> EditorPane -> CodeEditSourceEditor -> CodeEditLanguages
+                              +-> ImagePanel（当前图片，内容源 = 图片文件） -> ImageOpenPolicy 判定 -> ImageIO 降采样
                               +-> MarkdownPreviewView（预览模式，内容源 = 编辑缓冲区） -> FenceAwareChunker 分块（后台线程） -> 每块一个 MarkdownUI 视图（LazyVStack 懒渲染） -> PreviewImageProvider -> ImagePathResolver（本地）/ MarkdownUI 默认网络加载（http(s)）
 
 ## 模块
 
 | Module | Owns | Does not own | Public interface | Verification |
 | --- | --- | --- | --- | --- |
-| `WorkspaceModel` | 根文件夹、当前文档、编辑缓冲区、保存和冲突裁决 | 编辑器渲染 | 用户动作方法与可观察状态 | `FolbiCoreTests` + app build |
+| `WorkspaceModel` | 根文件夹、当前文档、当前图片、编辑缓冲区、选中分流、保存和冲突裁决 | 编辑器与图片渲染 | 用户动作方法（`openFile` 分流）与可观察状态 | `FolbiCoreTests`、`WorkspaceModelImageRoutingTests` + app build |
 | `FileNode` | 一个目录的惰性子节点快照 | 全局选择、磁盘写入 | `loadChildren`、`refreshLoadedSubtree` | `FolbiCoreTests` |
 | `FolderTreeView` | `NSOutlineView` 展示和右键菜单 | 文件树真相 | SwiftUI representable | app build / 手工交互 |
-| `ContentView` / `EditorPane` | 窗口布局、工具栏、编辑器绑定、编辑/预览模式切换与预览状态 | 磁盘状态 | SwiftUI views | app build / 手工交互 |
+| `ContentView` / `EditorPane` | 窗口布局、工具栏、编辑器绑定、编辑/预览模式切换与预览状态、detail 三态分流（当前图片/当前文档/空态） | 磁盘状态、互斥不变量 | SwiftUI views | app build / 手工交互 |
 | `MarkdownPreviewView` | Markdown 预览的分块懒渲染与「是否可预览」判定 | 磁盘状态、编辑缓冲区内容 | `MarkdownPreviewView`、`MarkdownPreviewability.isPreviewable` | `MarkdownPreviewabilityTests` + app build / 手工交互 |
 | `FenceAwareChunker` | Markdown 源文本按顶层块边界的 fence 感知切分（纯函数） | 磁盘状态、缓冲区状态 | `FenceAwareChunker.split` | `FenceAwareChunkerTests` |
 | `ImagePathResolver` | Markdown 本地图片路径的文档目录解析、根文件夹边界与可读性判定 | 网络加载、图片解码与渲染 | `ImagePathResolver.resolve` | `ImagePathResolverTests` |
 | `ImageOpenPolicy` | 图片打开策略的内容白名单与 1 亿像素上限 | 图片解码、展示与选中分流 | `ImageOpenPolicy.evaluate` | `ImageOpenPolicyTests` |
+| `ImagePanel` | 当前图片的 ImageIO 降采样、适应窗口布局与超限/解码失败占位 | 白名单与像素上限（复用 `ImageOpenPolicy`）、选中分流 | `ImagePanel`、`ImagePanel.load` | `ImagePanelTests` + app build / 手工交互 |
 | `PreviewImageProvider` | 预览图片的本地、http(s) 与占位分支；本地图片解码 | 本地路径边界规则、远程网络传输 | `PreviewImageProvider.makeImage`、`PreviewImageProvider.classify` | `PreviewImageProviderTests` + app build / 手工交互 |
 | `EditorThemes` | 三个主题到编辑器主题结构的映射 | 文档内容 | `EditorThemes.theme` | app build |
 | `AppearanceMode` | 外观模式三态、到 `ColorScheme` 的映射和菜单展示名 | 具体配色（归 `EditorThemes`） | `AppearanceMode` enum | `AppearanceModeTests` |

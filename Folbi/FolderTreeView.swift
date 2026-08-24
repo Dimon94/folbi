@@ -126,7 +126,7 @@ struct FolderTreeView: NSViewRepresentable {
                   let node = outlineView.item(atRow: outlineView.selectedRow) as? FileNode else { return }
             let previousURL = model.treeSelectionURL
             model.treeSelectionURL = node.url
-            if !node.isDirectory, !model.openDocument(at: node.url) {
+            if !node.isDirectory, !model.openFile(at: node.url) {
                 model.treeSelectionURL = previousURL
                 synchronizeSelection(to: previousURL)
             }

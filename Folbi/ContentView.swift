@@ -24,7 +24,12 @@ struct ContentView: View {
                     .accessibilityLabel("文件树")
             }
         } detail: {
-            if let documentURL = model.documentURL {
+            // 三态分流（ADR 0001 决策 3）：当前图片 → 图片面板；当前文档 → 编辑器栈；否则 → 空态。
+            // 互斥不变量由 WorkspaceModel 持有，此处照读，不投影为局部枚举。
+            if let currentImageURL = model.currentImageURL {
+                ImagePanel(url: currentImageURL)
+                    .id(currentImageURL)
+            } else if let documentURL = model.documentURL {
                 VStack(spacing: 0) {
                     ZStack {
                         // 编辑器在预览期间保持挂载（保住光标与撤销栈），只隐藏并让出交互。

@@ -143,6 +143,10 @@ final class WorkspaceModel: ObservableObject {
     @Published private(set) var treeRevision = 0
     @Published var treeSelectionURL: URL?
     @Published private(set) var documentURL: URL?
+    // 当前图片（spec #25 §1、ADR 0001 决策 2）：与 documentURL 互斥的选中图片。
+    // 互斥只由集中的打开/清空方法维持——openImage 置值前先 clearDocument，
+    // loadDocument/clearDocument 反向清空；视图照读，不投影为局部枚举。
+    @Published private(set) var currentImageURL: URL?
     @Published private(set) var isDirty = false
     @Published private(set) var hasExternalConflict = false
     @Published var selectedTheme = EditorThemeName.default
@@ -190,6 +194,32 @@ final class WorkspaceModel: ObservableObject {
         watcher.start(rootURL: root.url) { [weak self] in
             self?.handleFileSystemChange()
         }
+    }
+
+    /// 选中文件的分流入口（spec #25 §1/§2、ADR 0001 决策 2/3）。
+    /// 按内容嗅探：白名单图片（含超限）→ 当前图片；SVG 与其他文件 → 文本路径。
+    /// 超限不在此拦截——它是可显示的图片选中态，占位由图片面板承担、不回滚树选中。
+    /// 返回 false 表示未切换（脏缓冲区被用户取消或文本打开失败），由调用方回滚树选中。
+    @discardableResult
+    func openFile(at url: URL) -> Bool {
+        switch ImageOpenPolicy.evaluate(url) {
+        case .displayable, .exceedsPixelLimit:
+            return openImage(at: url)
+        case .notImage:
+            return openDocument(at: url)
+        }
+    }
+
+    @discardableResult
+    func openImage(at url: URL) -> Bool {
+        let standardizedURL = url.standardizedFileURL
+        guard standardizedURL != currentImageURL else { return true }
+        guard confirmCanAbandonCurrentDocument() else { return false }
+
+        clearDocument()
+        currentImageURL = standardizedURL
+        treeSelectionURL = standardizedURL
+        return true
     }
 
     @discardableResult
@@ -341,6 +371,7 @@ final class WorkspaceModel: ObservableObject {
         isApplyingDiskContent = false
         savedText = loadedText
         documentURL = url
+        currentImageURL = nil
         fingerprint = try FileFingerprint(url: url)
         isDirty = false
         hasExternalConflict = false
@@ -352,6 +383,7 @@ final class WorkspaceModel: ObservableObject {
         isApplyingDiskContent = false
         savedText = ""
         documentURL = nil
+        currentImageURL = nil
         fingerprint = nil
         isDirty = false
         hasExternalConflict = false
