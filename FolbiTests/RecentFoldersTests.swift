@@ -31,6 +31,15 @@ final class RecentFolderListTests: XCTestCase {
         XCTAssertEqual(list.paths, [target.standardizedFileURL.resolvingSymlinksInPath().path])
     }
 
+    func testMenuItemsExposeFolderNameAndFullPathInStoredOrder() {
+        let list = RecentFolderList(paths: ["/Users/demo/alpha", "/Users/demo/beta"])
+
+        let items = list.menuItems
+
+        XCTAssertEqual(items.map(\.displayName), ["alpha", "beta"])
+        XCTAssertEqual(items.map(\.path), list.paths)
+    }
+
     func testRemoveAndClear() {
         let first = URL(fileURLWithPath: "/first", isDirectory: true)
         let second = URL(fileURLWithPath: "/second", isDirectory: true)
@@ -40,7 +49,7 @@ final class RecentFolderListTests: XCTestCase {
         XCTAssertEqual(list.paths, [second.path])
 
         list.clear()
-        XCTAssertTrue(list.paths.isEmpty)
+        XCTAssertTrue(list.isEmpty)
     }
 
     private func makeTemporaryDirectory() throws -> URL {
@@ -101,6 +110,56 @@ final class WorkspaceModelRecentFoldersTests: XCTestCase {
 
         XCTAssertEqual(model.recentFolders.paths, [root.standardizedFileURL.resolvingSymlinksInPath().path])
         XCTAssertEqual(store.load(), model.recentFolders)
+    }
+
+    func testOpenRecentFolderWithValidPathOpensFolderAndMovesItToFront() throws {
+        let first = try makeTemporaryDirectory()
+        let second = try makeTemporaryDirectory()
+        defer {
+            try? FileManager.default.removeItem(at: first)
+            try? FileManager.default.removeItem(at: second)
+        }
+        let model = makeModel(paths: [first.path, second.path])
+
+        model.openRecentFolder(at: second.path, presentsError: false)
+
+        XCTAssertEqual(model.rootNode?.url, second.standardizedFileURL)
+        XCTAssertEqual(model.recentFolders.paths.first, second.standardizedFileURL.resolvingSymlinksInPath().path)
+    }
+
+    func testOpenRecentFolderWithInvalidPathRemovesEntryAndKeepsWorkspace() throws {
+        let current = try makeTemporaryDirectory()
+        let surviving = try makeTemporaryDirectory()
+        defer {
+            try? FileManager.default.removeItem(at: current)
+            try? FileManager.default.removeItem(at: surviving)
+        }
+        // 失效两种形态：路径不存在；路径存在但不再是目录（spec #38 §6）。
+        let missing = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let regularFile = current.appendingPathComponent("regular.txt")
+        try Data().write(to: regularFile)
+        let store = makeStore(paths: [missing.path, regularFile.path, surviving.path])
+        let model = WorkspaceModel(recentFoldersStore: store)
+        XCTAssertTrue(model.openRootFolder(current, presentsError: false))
+
+        model.openRecentFolder(at: missing.path, presentsError: false)
+        model.openRecentFolder(at: regularFile.path, presentsError: false)
+
+        XCTAssertEqual(model.rootNode?.url, current.standardizedFileURL)
+        XCTAssertEqual(model.recentFolders.paths, RecentFolderList(paths: [current.path, surviving.path]).paths)
+        XCTAssertEqual(store.load(), model.recentFolders)
+    }
+
+    func testClearRecentFoldersEmptiesListAndPersists() throws {
+        let folder = try makeTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let store = makeStore(paths: [folder.path])
+        let model = WorkspaceModel(recentFoldersStore: store)
+
+        model.clearRecentFolders()
+
+        XCTAssertEqual(model.recentFolders, RecentFolderList())
+        XCTAssertEqual(store.load(), RecentFolderList())
     }
 
     func testLaunchRestorationOpensFirstValidFolderWithoutReordering() throws {

@@ -57,6 +57,23 @@ private struct FolbiCommands: Commands {
             }
             .keyboardShortcut("o", modifiers: .command)
 
+            // 「打开最近」子菜单：条目与置灰由工作区模型发布状态驱动，无第二真相源（spec #38 §5）。
+            Menu("打开最近") {
+                ForEach(model.recentFolders.menuItems) { folder in
+                    Button(folder.displayName) {
+                        model.openRecentFolder(at: folder.path)
+                    }
+                    .help(folder.path)
+                }
+                if !model.recentFolders.isEmpty {
+                    Divider()
+                }
+                Button("清除最近") {
+                    model.clearRecentFolders()
+                }
+                .disabled(model.recentFolders.isEmpty)
+            }
+
             Divider()
 
             Button("新建文件…") {

@@ -193,8 +193,7 @@ final class WorkspaceModel: ObservableObject {
     @discardableResult
     func openRootFolder(_ url: URL, presentsError: Bool = true) -> Bool {
         guard confirmCanAbandonCurrentDocument() else { return false }
-        var isDirectory: ObjCBool = false
-        guard FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory), isDirectory.boolValue else {
+        guard Self.isExistingDirectory(url) else {
             if presentsError {
                 presentError(FolbiError.notRegularFile, title: "无法打开文件夹")
             }
@@ -212,6 +211,33 @@ final class WorkspaceModel: ObservableObject {
         recentFolders.record(root.url)
         recentFoldersStore.save(recentFolders)
         return true
+    }
+
+    /// IN: 最近文件夹列表中的路径（File 菜单「打开最近」点选入口，spec #38 §5/§6）。
+    /// OUT: 路径有效时走 openRootFolder 统一链路（含未保存修改确认）；
+    ///      失效时弹「无法打开文件夹」、移除该条并持久化，当前工作区不变，同一条不弹第二次。
+    /// PARAM: presentsError 为 false 时只抑制失效弹框，供测试与静默场景使用。
+    /// NOTE: 先判失效再进入打开链路，失效条目不触发未保存修改确认；
+    ///      确认停留期间路径失效的，openRootFolder 弹框后在此补做移除。
+    func openRecentFolder(at path: String, presentsError: Bool = true) {
+        let url = URL(fileURLWithPath: path, isDirectory: true)
+        guard Self.isExistingDirectory(url) else {
+            if presentsError {
+                presentError(FolbiError.notRegularFile, title: "无法打开文件夹")
+            }
+            recentFolders.remove(url)
+            recentFoldersStore.save(recentFolders)
+            return
+        }
+        guard !openRootFolder(url, presentsError: presentsError), !Self.isExistingDirectory(url) else { return }
+        recentFolders.remove(url)
+        recentFoldersStore.save(recentFolders)
+    }
+
+    /// OUT: 清空最近文件夹并立即持久化，不弹确认（spec #38 §5）。
+    func clearRecentFolders() {
+        recentFolders.clear()
+        recentFoldersStore.save(recentFolders)
     }
 
     /// CHAIN: 窗口内容首次出现且当前无根文件夹时，只尝试最近文件夹首条。
@@ -393,6 +419,12 @@ final class WorkspaceModel: ObservableObject {
         let alert = NSAlert(error: error)
         alert.messageText = title
         alert.runModal()
+    }
+
+    /// 失效判定（spec #38 §6）：路径不存在或不再是目录，不区分删除/移动/无权限。
+    private static func isExistingDirectory(_ url: URL) -> Bool {
+        var isDirectory: ObjCBool = false
+        return FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory) && isDirectory.boolValue
     }
 
     private func loadDocument(at url: URL) throws {

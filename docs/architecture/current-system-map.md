@@ -27,7 +27,7 @@ Status: active
 | Module | Owns | Does not own | Public interface | Verification |
 | --- | --- | --- | --- | --- |
 | `WorkspaceModel` | 根文件夹、最近文件夹、启动恢复、当前文档、当前图片、编辑缓冲区、选中分流、保存和冲突裁决 | 编辑器与图片渲染 | 用户动作方法（`openFile` 分流）与可观察状态 | `FolbiCoreTests`、`WorkspaceModelImageRoutingTests`、`WorkspaceModelRecentFoldersTests` + app build |
-| `RecentFolderList` | 最近文件夹的路径标准化、MRU 去重、10 条上限、移除和清空 | 持久读写与根文件夹打开 | `record`、`remove`、`clear`、`paths` | `RecentFolderListTests` |
+| `RecentFolderList` | 最近文件夹的路径标准化、MRU 去重、10 条上限、移除、清空和菜单条目投影 | 持久读写与根文件夹打开 | `record`、`remove`、`clear`、`paths`、`menuItems` | `RecentFolderListTests` |
 | `RecentFoldersStore` | UserDefaults 键 `recentFolderPaths` 的路径数组读写与损坏容错 | MRU 规则与工作区状态 | `load`、`save` | `RecentFoldersStoreTests` |
 | `FileNode` | 一个目录的惰性子节点快照 | 全局选择、磁盘写入 | `loadChildren`、`refreshLoadedSubtree` | `FolbiCoreTests` |
 | `FolderTreeView` | `NSOutlineView` 展示和右键菜单 | 文件树真相 | SwiftUI representable | app build / 手工交互 |
