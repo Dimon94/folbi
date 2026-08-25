@@ -63,9 +63,9 @@
 - Shallow wrapper。
 - Leaky interface。
 - Speculative generality。
-- Silent fallback。
+- Silent fallback（应 fail-close 处静默兜底）。
 - Test past interface。
-- 无删除条件的兼容层。
+- 无删除条件的兼容层（clean-break 不彻底）。
 
 发现坏味道时说明当前影响。不要把审美偏好写成 finding。
 

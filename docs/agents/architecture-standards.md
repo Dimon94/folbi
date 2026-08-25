@@ -73,7 +73,7 @@ Owner 为 Unknown 时，先把 Unknown 写进 System Map。不要用目录位置
 - Interface 只暴露 caller 必须知道的事实。
 - 内部 test seam 不因测试方便进入 public interface。
 - 同一规则只保留一个 canonical implementation。
-- Compatibility shim 必须委托 canonical implementation，并有删除条件。
+- Compatibility shim 必须委托 canonical implementation，并有删除条件；无真实存量用户时不引入 shim，直接 clean-break。
 
 ## 7. Seam 与 Adapter
 
