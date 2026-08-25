@@ -30,6 +30,8 @@ Status: active
 | `RecentFolderList` | 最近文件夹的路径标准化、MRU 去重、10 条上限、移除、清空和菜单条目投影 | 持久读写与根文件夹打开 | `record`、`remove`、`clear`、`paths`、`menuItems` | `RecentFolderListTests` |
 | `RecentFoldersStore` | UserDefaults 键 `recentFolderPaths` 的路径数组读写与损坏容错 | MRU 规则与工作区状态 | `load`、`save` | `RecentFoldersStoreTests` |
 | `FileNode` | 一个目录的惰性子节点快照 | 全局选择、磁盘写入 | `loadChildren`、`refreshLoadedSubtree` | `FolbiCoreTests` |
+| `GitRepositoryReader` | git CLI 四个只读命令的进程起停与错误映射 | Git 会话状态、UI、Git 写操作 | `repositoryTopLevel`、`commits`、`changedFiles`、`patch` | `GitRepositoryReaderTests` |
+| `GitOutputParser` | stdout Data 与退出码到 Git 领域值的纯函数解析 | 进程起停、Git 会话状态 | 四类机器格式解析函数 | `GitOutputParserTests` |
 | `FolderTreeView` | `NSOutlineView` 展示和右键菜单 | 文件树真相 | SwiftUI representable | app build / 手工交互 |
 | `ContentView` / `EditorPane` | 窗口布局、工具栏、编辑器绑定、编辑/预览模式切换与预览状态、detail 三态分流（当前图片/当前文档/空态） | 磁盘状态、互斥不变量 | SwiftUI views | app build / 手工交互 |
 | `MarkdownPreviewView` | Markdown 预览的分块懒渲染与「是否可预览」判定 | 磁盘状态、编辑缓冲区内容 | `MarkdownPreviewView`、`MarkdownPreviewability.isPreviewable` | `MarkdownPreviewabilityTests` + app build / 手工交互 |
