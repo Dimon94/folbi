@@ -8,7 +8,7 @@ Folbi 是一个轻量、原生的 macOS 文件夹编辑器。它保留日常 Age
 
 产品、仓库、Xcode 工程、scheme 和 Swift 模块统一使用 Folbi。
 
-主 Logo 使用 Folbi 柠檬文件夹形象。原图位于 `design/logo/folbi-logo.png`，macOS App Icon 位于 `Folbi/Assets.xcassets/AppIcon.appiconset`。
+圆角方形主 Logo 使用 Folbi 柠檬文件夹形象。原图位于 `design/logo/folbi-logo.png`，macOS App Icon 位于 `Folbi/Assets.xcassets/AppIcon.appiconset`。
 
 ## 首版能力
 
