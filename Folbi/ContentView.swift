@@ -117,7 +117,9 @@ struct ContentView: View {
                         Label(isShowingHistory ? "编辑" : "历史",
                               systemImage: isShowingHistory ? "pencil" : "clock")
                     }
-                    .help("切换历史（⌘⇧H）")
+                    // spec #42 §1 裁定入口不配快捷键；help 不再暗示不存在的 ⌘⇧H。
+                    .help(isShowingHistory ? "切回编辑器" : "切换到历史视图")
+                    .accessibilityAddTraits(isShowingHistory ? [.isSelected] : [])
                 }
             }
         }

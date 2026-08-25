@@ -1,9 +1,10 @@
+import AppKit
 import SwiftUI
 
 // COORD: repo://Folbi/GitHistoryView.swift
 // INPUT: GitHistoryModel 的只读可观察状态。
-// OUTPUT: 三栏历史视图（提交列表｜变更文件｜差异）、选中联动、占位与错误呈现。
-// POS: 历史视图模块；只读 GitHistoryModel，不写 .git 或工作区。
+// OUTPUT: 三栏历史视图（HSplitView：提交列表｜变更文件｜差异）、List 原生选中联动、占位与错误呈现。
+// POS: 历史视图模块；只读 GitHistoryModel，不写 .git 或工作区。剪贴板写入只来自右键菜单动作。
 // TEST: repo://FolbiTests/GitHistoryViewTests.swift
 
 /// 提交列表滚动分页的触发锚点。末项出现时加载下一页，直到历史末尾。
@@ -44,20 +45,25 @@ struct HistoryColumnPlaceholder: View {
 struct GitHistoryView: View {
     @ObservedObject var model: GitHistoryModel
 
+    /// 列表日期格式：短日期加短时间，配合等宽数字在提交行行尾右对齐（#47 排版打磨）。
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateStyle = .medium
+        formatter.dateStyle = .short
         formatter.timeStyle = .short
         return formatter
     }()
 
     var body: some View {
-        HStack(spacing: 0) {
+        // HSplitView 承担分隔线拖拽与窗口缩放分配（macOS 三栏原生惯例）；
+        // 三栏最小宽度之和 680pt 低于窗口最小宽度 720pt，最小窗口下也不互相挤压。
+        HSplitView {
             commitListColumn
-            Divider()
+                .frame(minWidth: 220, idealWidth: 280, maxWidth: 400, maxHeight: .infinity)
             changedFilesColumn
-            Divider()
+                .frame(minWidth: 180, idealWidth: 240, maxWidth: 360, maxHeight: .infinity)
             diffColumn
+                .frame(minWidth: 280, maxWidth: .infinity, maxHeight: .infinity)
+                .layoutPriority(1)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -73,51 +79,60 @@ struct GitHistoryView: View {
             if model.commits.isEmpty && model.commitsError == nil {
                 HistoryColumnPlaceholder(message: "暂无提交", systemImage: "clock")
             } else {
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 0) {
-                        ForEach(model.commits, id: \.hash) { commit in
-                            Button {
-                                if model.selectedCommit != commit { model.selectCommit(commit) }
-                            } label: {
-                                commitRow(commit)
-                            }
-                            .buttonStyle(.plain)
+                // List 承担原生选中态、方向键导航与焦点环；选中经绑定转发给 GitHistoryModel。
+                List(selection: Self.commitSelectionBinding(model: model)) {
+                    ForEach(model.commits, id: \.hash) { commit in
+                        commitRow(commit)
+                            .tag(commit.hash)
+                    }
+                    if model.hasMoreCommits {
+                        LoadMoreAnchor {
+                            model.loadNextPage()
                         }
-                        if model.hasMoreCommits {
-                            LoadMoreAnchor {
-                                model.loadNextPage()
-                            }
-                        }
+                        .listRowInsets(EdgeInsets())
+                        .accessibilityHidden(true)
                     }
                 }
+                .accessibilityLabel("提交列表")
             }
         }
-        .frame(minWidth: 240, idealWidth: 320, maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
+    /// 提交行排版：主题一行、完整 hash 一行（过窄时中间截断，tooltip 与右键菜单可取完整值）、
+    /// 作者名加右对齐等宽数字日期一行。长 hash/作者/主题均截断，不破坏行布局。
     private func commitRow(_ commit: GitCommit) -> some View {
         VStack(alignment: .leading, spacing: 2) {
+            Text(commit.subject)
+                .font(.body)
+                .lineLimit(1)
             Text(commit.hash)
                 .font(.system(.caption, design: .monospaced))
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
-            Text(commit.subject)
-                .font(.body)
-                .lineLimit(1)
-            HStack(spacing: 8) {
+                .truncationMode(.middle)
+            HStack(spacing: 6) {
                 Text(commit.authorName)
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                Spacer(minLength: 4)
                 Text(Self.dateFormatter.string(from: commit.authorDate))
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .fixedSize()
             }
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 6)
+        .padding(.vertical, 2)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(model.selectedCommit == commit ? Color.accentColor.opacity(0.15) : Color.clear)
-        .contentShape(Rectangle())
+        .help(commit.hash)
+        .contextMenu {
+            Button("复制完整 Hash") {
+                copyToPasteboard(commit.hash)
+            }
+        }
     }
 
     // MARK: - 变更文件栏
@@ -137,21 +152,16 @@ struct GitHistoryView: View {
                     HistoryColumnPlaceholder(message: "合并提交，不展示差异", systemImage: "arrow.triangle.merge")
                 }
             } else {
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 0) {
-                        ForEach(model.changedFiles, id: \.path) { file in
-                            Button {
-                                if model.selectedFile != file { model.selectFile(file) }
-                            } label: {
-                                fileRow(file)
-                            }
-                            .buttonStyle(.plain)
-                        }
+                List(selection: Self.fileSelectionBinding(model: model)) {
+                    ForEach(model.changedFiles, id: \.path) { file in
+                        fileRow(file)
+                            .tag(file.path)
                     }
                 }
+                .accessibilityLabel("变更文件")
             }
         }
-        .frame(minWidth: 200, idealWidth: 280, maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
     private func fileRow(_ file: GitFileChange) -> some View {
@@ -163,12 +173,14 @@ struct GitHistoryView: View {
                 .truncationMode(.middle)
             Spacer(minLength: 0)
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 5)
+        .padding(.vertical, 2)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(model.selectedFile == file ? Color.accentColor.opacity(0.15) : Color.clear)
-        .contentShape(Rectangle())
         .help(displayPath(of: file))
+        .contextMenu {
+            Button("复制文件路径") {
+                copyToPasteboard(file.path)
+            }
+        }
     }
 
     /// 重命名与复制显示「旧路径 → 新路径」，其余显示路径本身。
@@ -179,6 +191,7 @@ struct GitHistoryView: View {
         return file.path
     }
 
+    /// 状态徽标：固定宽度使各行路径起始位置垂直对齐。
     private func statusBadge(_ status: GitFileChange.Status) -> some View {
         let label: String
         let color: Color
@@ -204,7 +217,7 @@ struct GitHistoryView: View {
             .foregroundStyle(color)
             .padding(.horizontal, 5)
             .padding(.vertical, 1)
-            .frame(minWidth: 32)
+            .frame(width: 44)
             .background(color.opacity(0.15))
             .clipShape(RoundedRectangle(cornerRadius: 4))
     }
@@ -215,7 +228,7 @@ struct GitHistoryView: View {
         VStack(spacing: 0) {
             diffContent
         }
-        .frame(minWidth: 320, maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
     /// 差异栏状态裁决。占位文案锁定于 spec #42 §4/§5/§7；失败只加内联横幅，不弹 alert。
@@ -261,6 +274,7 @@ struct GitHistoryView: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                     .truncationMode(.middle)
+                    .help(displayPath(of: file))
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -271,19 +285,58 @@ struct GitHistoryView: View {
         }
     }
 
+    // MARK: - 列表选中绑定
+
+    /// 提交列表的 List 选中绑定：读模型当前选中提交；写入 hash 选中对应提交，写入 nil 取消选中。
+    /// 点选与方向键导航经同一入口，重复选中不重新加载。
+    /// TEST: repo://FolbiTests/GitHistoryViewTests.swift
+    static func commitSelectionBinding(model: GitHistoryModel) -> Binding<String?> {
+        Binding(
+            get: { model.selectedCommit?.hash },
+            set: { hash in
+                guard hash != model.selectedCommit?.hash else { return }
+                model.selectCommit(model.commits.first { $0.hash == hash })
+            }
+        )
+    }
+
+    /// 变更文件列表的 List 选中绑定：写入 path 选中对应文件，写入 nil 清空选中与该文件 patch。
+    /// TEST: repo://FolbiTests/GitHistoryViewTests.swift
+    static func fileSelectionBinding(model: GitHistoryModel) -> Binding<String?> {
+        Binding(
+            get: { model.selectedFile?.path },
+            set: { path in
+                guard path != model.selectedFile?.path else { return }
+                model.selectFile(model.changedFiles.first { $0.path == path })
+            }
+        )
+    }
+
     // MARK: - 内联错误
 
+    /// 栏顶内联错误横幅：图标加一行说明，底部以分隔线与正文分区。
     private func inlineError(_ error: GitError) -> some View {
-        HStack(spacing: 6) {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundStyle(.orange)
-            Text(error.localizedDescription)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+        VStack(spacing: 0) {
+            HStack(spacing: 6) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.orange)
+                    .accessibilityHidden(true)
+                Text(error.localizedDescription)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color(nsColor: .windowBackgroundColor))
+            Divider()
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 8)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(nsColor: .windowBackgroundColor))
+    }
+
+    /// 右键菜单共用的剪贴板写入。只读查看能力，不触碰 .git 或工作区。
+    private func copyToPasteboard(_ string: String) {
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(string, forType: .string)
     }
 }
