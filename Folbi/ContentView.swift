@@ -9,10 +9,17 @@ struct ContentView: View {
     /// 预览模式开关（spec #10 §2）：视图层状态，值为正在预览的文档 URL，不进入 WorkspaceModel。
     /// 切换文档后 URL 不再匹配即回到编辑模式；onChange 再清空，切回旧文档也不恢复预览（不做按文档记忆）。
     @State private var previewingDocumentURL: URL?
+    /// 历史模式开关（spec #42 §2、#45）：视图层状态，值为进入历史视图时的 GitHistoryModel 句柄。
+    /// 进入历史视图时由 model.gitHistory 重建并拉取第一页；切回编辑器时恢复进入前状态。
+    @State private var historyModel: GitHistoryModel?
     @Environment(\.colorScheme) private var colorScheme
 
     private var isPreviewing: Bool {
         previewingDocumentURL != nil && previewingDocumentURL == model.documentURL
+    }
+
+    private var isShowingHistory: Bool {
+        historyModel != nil
     }
 
     var body: some View {
@@ -29,15 +36,17 @@ struct ContentView: View {
             if let currentImageURL = model.currentImageURL {
                 ImagePanel(url: currentImageURL)
                     .id(currentImageURL)
+            } else if let historyModel = historyModel {
+                GitHistoryView(model: historyModel)
             } else if let documentURL = model.documentURL {
                 VStack(spacing: 0) {
                     ZStack {
-                        // 编辑器在预览期间保持挂载（保住光标与撤销栈），只隐藏并让出交互。
+                        // 编辑器在预览/历史期间保持挂载（保住光标与撤销栈），只隐藏并让出交互。
                         EditorPane(model: model, documentURL: documentURL)
                             .id(documentURL)
-                            .opacity(isPreviewing ? 0 : 1)
-                            .allowsHitTesting(!isPreviewing)
-                            .accessibilityHidden(isPreviewing)
+                            .opacity(isPreviewing || isShowingHistory ? 0 : 1)
+                            .allowsHitTesting(!isPreviewing && !isShowingHistory)
+                            .accessibilityHidden(isPreviewing || isShowingHistory)
                         if isPreviewing {
                             MarkdownPreviewView(
                                 text: model.text,
@@ -99,9 +108,27 @@ struct ContentView: View {
                     .help("切换预览（⌘⇧V）")
                 }
             }
+
+            if model.gitHistory != nil {
+                ToolbarItem(placement: .automatic) {
+                    Button {
+                        toggleHistory()
+                    } label: {
+                        Label(isShowingHistory ? "编辑" : "历史",
+                              systemImage: isShowingHistory ? "pencil" : "clock")
+                    }
+                    .help("切换历史（⌘⇧H）")
+                }
+            }
         }
         .onChange(of: model.documentURL) { _ in
             previewingDocumentURL = nil
+            if !isShowingHistory {
+                historyModel = nil
+            }
+        }
+        .onChange(of: model.gitHistory?.repositoryURL) { _ in
+            historyModel = nil
         }
         .onAppear {
             model.restoreRootFolderAtLaunch()
@@ -118,8 +145,20 @@ struct ContentView: View {
             previewingDocumentURL = nil
         } else {
             // 编辑器保持挂载但不可见，先交出键盘焦点，避免按键落入不可见编辑器。
+            historyModel = nil
             NSApp.keyWindow?.makeFirstResponder(nil)
             previewingDocumentURL = model.documentURL
+        }
+    }
+
+    /// 编辑/历史双向切换：工具栏按钮。
+    private func toggleHistory() {
+        if isShowingHistory {
+            historyModel = nil
+        } else if let gitHistory = model.gitHistory {
+            // 进入历史视图时刷新一次：重置浏览状态并拉取第一页。
+            gitHistory.enterHistory()
+            historyModel = gitHistory
         }
     }
 }

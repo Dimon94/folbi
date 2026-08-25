@@ -21,6 +21,7 @@ Status: active
                               +-> EditorPane -> CodeEditSourceEditor -> CodeEditLanguages
                               +-> ImagePanel（当前图片，内容源 = 图片文件） -> ImageOpenPolicy 判定 -> GIF 走 AnimatedImageView（NSImageView 包装，按帧时长播放）；其余格式走 ImageIO 降采样
                               +-> MarkdownPreviewView（预览模式，内容源 = 编辑缓冲区） -> FenceAwareChunker 分块（后台线程） -> 每块一个 MarkdownUI 视图（LazyVStack 懒渲染） -> PreviewImageProvider -> ImagePathResolver（本地）/ MarkdownUI 默认网络加载（http(s)）
+                              +-> GitHistoryView（历史模式，内容源 = GitHistoryModel） -> GitRepositoryReader -> GitOutputParser -> /usr/bin/git log/diff-tree（只读）
 
 ## 模块
 
@@ -34,7 +35,8 @@ Status: active
 | `GitRepositoryReader` | git CLI 四个只读命令的进程起停与错误映射 | Git 会话状态、UI、Git 写操作 | `repositoryTopLevel`、`commits`、`changedFiles`、`patch` | `GitRepositoryReaderTests` |
 | `GitOutputParser` | stdout Data 与退出码到 Git 领域值的纯函数解析 | 进程起停、Git 会话状态 | 四类机器格式解析函数 | `GitOutputParserTests` |
 | `FolderTreeView` | `NSOutlineView` 展示和右键菜单 | 文件树真相 | SwiftUI representable | app build / 手工交互 |
-| `ContentView` / `EditorPane` | 窗口布局、工具栏、编辑器绑定、编辑/预览模式切换与预览状态、detail 三态分流（当前图片/当前文档/空态） | 磁盘状态、互斥不变量 | SwiftUI views | app build / 手工交互 |
+| `ContentView` / `EditorPane` | 窗口布局、工具栏、编辑器绑定、编辑/预览/历史模式切换与预览状态、detail 三态分流（当前图片/当前文档/空态/历史视图） | 磁盘状态、互斥不变量 | SwiftUI views | app build / 手工交互 |
+| `GitHistoryView` | 三栏历史视图布局、提交列表滚动分页（LazyVStack 末项触发）、变更文件与差异栏占位 | Git 会话状态、Git 写操作 | `GitHistoryView` | app build / 手工交互 |
 | `MarkdownPreviewView` | Markdown 预览的分块懒渲染与「是否可预览」判定 | 磁盘状态、编辑缓冲区内容 | `MarkdownPreviewView`、`MarkdownPreviewability.isPreviewable` | `MarkdownPreviewabilityTests` + app build / 手工交互 |
 | `FenceAwareChunker` | Markdown 源文本按顶层块边界的 fence 感知切分（纯函数） | 磁盘状态、缓冲区状态 | `FenceAwareChunker.split` | `FenceAwareChunkerTests` |
 | `ImagePathResolver` | Markdown 本地图片路径的文档目录解析、根文件夹边界与可读性判定 | 网络加载、图片解码与渲染 | `ImagePathResolver.resolve` | `ImagePathResolverTests` |
