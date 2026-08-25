@@ -216,7 +216,8 @@ private struct EditorPane: View {
             appearance: .init(
                 theme: EditorThemes.theme(model.selectedTheme, colorScheme: colorScheme),
                 font: .monospacedSystemFont(ofSize: 13, weight: .regular),
-                wrapLines: false
+                // 超长行软换行（issue #48）：false 时内容随最长行横向扩展，溢出 UI 边界。
+                wrapLines: true
             ),
             behavior: .init(
                 isEditable: true,
