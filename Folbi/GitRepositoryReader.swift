@@ -69,11 +69,12 @@ struct GitRepositoryReader {
     }
 
     /// 读取一个提交的变更文件。根提交按对空树的创建事件处理。
+    /// PARAM: `-M` 启用 Git 默认重命名检测，输出由 parser 映射为 renamed 与 previousPath。
     func changedFiles(of hash: String, in repository: URL) throws -> [GitFileChange] {
         try validateHash(hash)
         let result = try execute([
             "-C", repository.path,
-            "diff-tree", "-r", "--no-commit-id", "--root", "--name-status", "-z", hash,
+            "diff-tree", "-r", "-M", "--no-commit-id", "--root", "--name-status", "-z", hash,
         ])
         return try GitOutputParser.changedFiles(stdout: result.stdout, exitCode: result.exitCode)
     }

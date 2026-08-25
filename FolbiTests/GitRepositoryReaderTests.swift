@@ -18,11 +18,19 @@ final class GitRepositoryReaderTests: XCTestCase {
 
         XCTAssertEqual(
             try reader.changedFiles(of: oldest[0].hash, in: repository),
-            [GitFileChange(status: .added, path: "note.txt")]
+            [
+                GitFileChange(status: .added, path: "note.txt"),
+                GitFileChange(status: .added, path: "old.txt"),
+            ]
         )
         XCTAssertEqual(
-            Set(try reader.changedFiles(of: newest[0].hash, in: repository).map(\.path)),
-            Set([":literal.txt", "note.txt", "second.txt"])
+            try reader.changedFiles(of: newest[0].hash, in: repository),
+            [
+                GitFileChange(status: .added, path: ":literal.txt"),
+                GitFileChange(status: .modified, path: "note.txt"),
+                GitFileChange(status: .renamed, path: "renamed.txt", previousPath: "old.txt"),
+                GitFileChange(status: .added, path: "second.txt"),
+            ]
         )
 
         let patch = try reader.patch(of: newest[0].hash, path: "note.txt", in: repository)
@@ -81,12 +89,14 @@ final class GitRepositoryReaderTests: XCTestCase {
         try runGit(["config", "user.email", "folbi@example.com"], in: repository)
 
         try Data("one\n".utf8).write(to: repository.appendingPathComponent("note.txt"))
-        try runGit(["add", "note.txt"], in: repository)
+        try Data("rename\n".utf8).write(to: repository.appendingPathComponent("old.txt"))
+        try runGit(["add", "note.txt", "old.txt"], in: repository)
         try runGit(["commit", "-q", "-m", "root"], in: repository, date: "2026-08-24T10:00:00+08:00")
 
         try Data("two\n".utf8).write(to: repository.appendingPathComponent("note.txt"))
         try Data("second\n".utf8).write(to: repository.appendingPathComponent("second.txt"))
         try Data("literal\n".utf8).write(to: repository.appendingPathComponent(":literal.txt"))
+        try runGit(["mv", "old.txt", "renamed.txt"], in: repository)
         try runGit(["add", "--all"], in: repository)
         try runGit(["commit", "-q", "-m", "second"], in: repository, date: "2026-08-24T11:00:00+08:00")
         return repository

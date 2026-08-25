@@ -141,6 +141,7 @@ final class WorkspaceModel: ObservableObject {
 
     @Published private(set) var rootNode: FileNode?
     @Published private(set) var recentFolders: RecentFolderList
+    @Published private(set) var gitHistory: GitHistoryModel?
     @Published private(set) var treeRevision = 0
     @Published var treeSelectionURL: URL?
     @Published private(set) var documentURL: URL?
@@ -202,6 +203,7 @@ final class WorkspaceModel: ObservableObject {
 
         let root = FileNode(url: url, isDirectory: true)
         rootNode = root
+        gitHistory = GitHistoryModel(rootFolderURL: root.url)
         treeSelectionURL = root.url
         clearDocument()
         treeRevision += 1
