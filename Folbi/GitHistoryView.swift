@@ -18,7 +18,7 @@ private struct LoadMoreAnchor: View {
     }
 }
 
-/// 栏内居中占位：图标加一行说明。模块内共用（本文件与 repo://Folbi/SideBySideDiffView.swift）。
+/// 栏内居中占位：图标加一行说明。模块内共用（本文件与 repo://Folbi/InlineDiffView.swift）。
 struct HistoryColumnPlaceholder: View {
     let message: String
     let systemImage: String
@@ -253,7 +253,7 @@ struct GitHistoryView: View {
             case .failure(let error, let retainedContent):
                 inlineError(error)
                 if let retainedContent {
-                    SideBySideDiffView(patchText: retainedContent)
+                    InlineDiffView(patchText: retainedContent)
                         .equatable()
                 }
             case .mergeCommit:
@@ -280,7 +280,7 @@ struct GitHistoryView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Divider()
             }
-            SideBySideDiffView(patchText: patchText)
+            InlineDiffView(patchText: patchText)
                 .equatable()
         }
     }

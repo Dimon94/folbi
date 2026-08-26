@@ -2,12 +2,12 @@ import SwiftUI
 import XCTest
 @testable import Folbi
 
-/// 历史视图模块测试锚点：并排差异行解析的合同测试（#46，#47 增加行号）与列表选中绑定的行为测试（#47）。
+/// 历史视图模块测试锚点：统一单列内联差异行解析的合同测试与列表选中绑定的行为测试。
 /// 三栏布局与视觉打磨走 app build / 手工 smoke（沿历史视图模块的既有验证面）。
 final class GitHistoryViewTests: XCTestCase {
-    /// 连续删除块与紧随的新增块按序配对同行；多出的一侧与空单元格配对；上下文行两侧同文。
-    /// 行号自 hunk 头起点逐行推进：旧侧用 - 起点，新侧用 + 起点。
-    func testRowsPairDeletionsWithAdditionsAroundContext() {
+    /// 删除行与新增行按 patch 顺序各占一行，不配对到同一行；上下文行同时带旧/新行号。
+    /// 行号自 hunk 头起点逐行推进：删除推旧侧，新增推新侧。
+    func testRowsEmitDeletionsThenAdditionsSequentially() {
         let patch = patchText([
             "diff --git a/笔记.txt b/笔记.txt",
             "index 1111111..2222222 100644",
@@ -23,18 +23,20 @@ final class GitHistoryViewTests: XCTestCase {
             " 尾行",
         ])
 
-        XCTAssertEqual(SideBySideDiffParser.rows(from: patch), [
+        XCTAssertEqual(InlineDiffParser.rows(from: patch), [
             .hunkHeader(id: 0, text: "@@ -1,4 +1,4 @@"),
-            .line(id: 1, old: .context(line: 1, text: "上下文"), new: .context(line: 1, text: "上下文")),
-            .line(id: 2, old: .deleted(line: 2, text: "旧一"), new: .added(line: 2, text: "新一")),
-            .line(id: 3, old: .deleted(line: 3, text: "旧二"), new: .added(line: 3, text: "新二")),
-            .line(id: 4, old: .empty, new: .added(line: 4, text: "新三")),
-            .line(id: 5, old: .context(line: 4, text: "尾行"), new: .context(line: 5, text: "尾行")),
+            .line(id: 1, kind: .context, oldLine: 1, newLine: 1, text: "上下文"),
+            .line(id: 2, kind: .deleted, oldLine: 2, newLine: nil, text: "旧一"),
+            .line(id: 3, kind: .deleted, oldLine: 3, newLine: nil, text: "旧二"),
+            .line(id: 4, kind: .added, oldLine: nil, newLine: 2, text: "新一"),
+            .line(id: 5, kind: .added, oldLine: nil, newLine: 3, text: "新二"),
+            .line(id: 6, kind: .added, oldLine: nil, newLine: 4, text: "新三"),
+            .line(id: 7, kind: .context, oldLine: 4, newLine: 5, text: "尾行"),
         ])
     }
 
     /// 文件头行（diff --git / new file mode / index / --- / +++）不产生差异行；
-    /// 根提交式全新增 patch 的所有内容行只进入右侧，行号从 + 起点开始。
+    /// 根提交式全新增 patch 的内容行全是新增行，行号从 + 起点开始。
     func testRowsSkipFileHeadersAndRenderNewFileAsAdditions() {
         let patch = patchText([
             "diff --git a/新增.txt b/新增.txt",
@@ -47,16 +49,15 @@ final class GitHistoryViewTests: XCTestCase {
             "+乙",
         ])
 
-        XCTAssertEqual(SideBySideDiffParser.rows(from: patch), [
+        XCTAssertEqual(InlineDiffParser.rows(from: patch), [
             .hunkHeader(id: 0, text: "@@ -0,0 +1,2 @@"),
-            .line(id: 1, old: .empty, new: .added(line: 1, text: "甲")),
-            .line(id: 2, old: .empty, new: .added(line: 2, text: "乙")),
+            .line(id: 1, kind: .added, oldLine: nil, newLine: 1, text: "甲"),
+            .line(id: 2, kind: .added, oldLine: nil, newLine: 2, text: "乙"),
         ])
     }
 
-    /// hunk 头切断配对：上一 hunk 末尾的删除不得与下一 hunk 开头的新增同行；
-    /// 行号在每个 hunk 头按各自起点重启。
-    func testRowsResetPairingAtHunkBoundary() {
+    /// hunk 头重启行号：上一 hunk 末尾的删除不与下一 hunk 开头的新增混号。
+    func testRowsRestartLineNumbersAtHunkBoundary() {
         let patch = patchText([
             "diff --git a/f.txt b/f.txt",
             "index 1111111..2222222 100644",
@@ -68,15 +69,15 @@ final class GitHistoryViewTests: XCTestCase {
             "+乙",
         ])
 
-        XCTAssertEqual(SideBySideDiffParser.rows(from: patch), [
+        XCTAssertEqual(InlineDiffParser.rows(from: patch), [
             .hunkHeader(id: 0, text: "@@ -1 +0,0 @@"),
-            .line(id: 1, old: .deleted(line: 1, text: "甲"), new: .empty),
+            .line(id: 1, kind: .deleted, oldLine: 1, newLine: nil, text: "甲"),
             .hunkHeader(id: 2, text: "@@ -3,0 +4 @@"),
-            .line(id: 3, old: .empty, new: .added(line: 4, text: "乙")),
+            .line(id: 3, kind: .added, oldLine: nil, newLine: 4, text: "乙"),
         ])
     }
 
-    /// `\` 开头标记行成为整宽标记行并切断配对；hunk 内无法识别的行按上下文行透传，不丢信息。
+    /// `\` 开头标记行成为整宽标记行，不推进行号；hunk 内无法识别的行按上下文行透传，不丢信息。
     func testRowsEmitNoNewlineMarkerAndPassThroughUnrecognizedLines() {
         let patch = patchText([
             "diff --git a/f.txt b/f.txt",
@@ -91,17 +92,17 @@ final class GitHistoryViewTests: XCTestCase {
             "无法识别行",
         ])
 
-        XCTAssertEqual(SideBySideDiffParser.rows(from: patch), [
+        XCTAssertEqual(InlineDiffParser.rows(from: patch), [
             .hunkHeader(id: 0, text: "@@ -1 +1 @@"),
-            .line(id: 1, old: .deleted(line: 1, text: "旧"), new: .empty),
+            .line(id: 1, kind: .deleted, oldLine: 1, newLine: nil, text: "旧"),
             .noNewlineMarker(id: 2),
-            .line(id: 3, old: .empty, new: .added(line: 1, text: "新")),
+            .line(id: 3, kind: .added, oldLine: nil, newLine: 1, text: "新"),
             .noNewlineMarker(id: 4),
-            .line(id: 5, old: .context(line: 2, text: "无法识别行"), new: .context(line: 2, text: "无法识别行")),
+            .line(id: 5, kind: .context, oldLine: 2, newLine: 2, text: "无法识别行"),
         ])
     }
 
-    /// hunk 头无法解析时行号为 nil（gutter 留空比误标更糟）；行内容与配对照常。
+    /// hunk 头无法解析时行号为 nil（gutter 留空比误标更糟）；行种类照常。
     func testRowsLeaveLineNumbersBlankWhenHunkHeaderUnparseable() {
         let patch = patchText([
             "diff --git a/f.txt b/f.txt",
@@ -113,10 +114,10 @@ final class GitHistoryViewTests: XCTestCase {
             "-乙",
         ])
 
-        XCTAssertEqual(SideBySideDiffParser.rows(from: patch), [
+        XCTAssertEqual(InlineDiffParser.rows(from: patch), [
             .hunkHeader(id: 0, text: "@@ 无法解析 @@"),
-            .line(id: 1, old: .context(line: nil, text: "甲"), new: .context(line: nil, text: "甲")),
-            .line(id: 2, old: .deleted(line: nil, text: "乙"), new: .empty),
+            .line(id: 1, kind: .context, oldLine: nil, newLine: nil, text: "甲"),
+            .line(id: 2, kind: .deleted, oldLine: nil, newLine: nil, text: "乙"),
         ])
     }
 
@@ -129,11 +130,11 @@ final class GitHistoryViewTests: XCTestCase {
             "rename to 新名.txt",
         ].joined(separator: "\n")
 
-        XCTAssertEqual(SideBySideDiffParser.rows(from: renamePatch), [])
-        XCTAssertEqual(SideBySideDiffParser.rows(from: ""), [])
+        XCTAssertEqual(InlineDiffParser.rows(from: renamePatch), [])
+        XCTAssertEqual(InlineDiffParser.rows(from: ""), [])
     }
 
-    /// 大 patch 解析保持完整：一万对删除/新增全部成对，不丢行、不重行，行号连续推进。
+    /// 大 patch 解析保持完整：一万条删除与一万条新增各占一行，不丢行、不重行。
     func testRowsHandleLargePatchWithoutDroppingLines() {
         var lines = [
             "diff --git a/big.txt b/big.txt",
@@ -149,14 +150,17 @@ final class GitHistoryViewTests: XCTestCase {
             lines.append("+新行\(index)")
         }
 
-        let rows = SideBySideDiffParser.rows(from: patchText(lines))
+        let rows = InlineDiffParser.rows(from: patchText(lines))
 
-        XCTAssertEqual(rows.count, 10_001)
+        XCTAssertEqual(rows.count, 20_001)
         XCTAssertEqual(rows.first, .hunkHeader(id: 0, text: "@@ -1,10000 +1,10000 @@"))
+        XCTAssertEqual(rows[1], .line(id: 1, kind: .deleted, oldLine: 1, newLine: nil, text: "旧行0"))
         XCTAssertEqual(rows.last, .line(
-            id: 10_000,
-            old: .deleted(line: 10_000, text: "旧行9999"),
-            new: .added(line: 10_000, text: "新行9999")
+            id: 20_000,
+            kind: .added,
+            oldLine: nil,
+            newLine: 10_000,
+            text: "新行9999"
         ))
     }
 
