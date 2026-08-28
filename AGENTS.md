@@ -24,6 +24,7 @@
 先复用现有模块、类型、schema、helper 和脚本。再使用标准库、运行时原生能力和已安装依赖。最后才写最少新代码。
 一次变更只解决一个可独立验证的语义目标。保留用户的无关改动。
 复杂任务先分清现象、根因和设计不变量，再给最小动作。
+歧义只在答案会实质改变结果、范围、风险或授权时才提问；其余陈述假设并继续。多条路径存在实质取舍时推荐一条并说明理由。
 用户要求“确认后执行”时，只给方案，不修改文件。
 完整开发流程见 repo://docs/agents/development-workflow.md。触发：实现功能、修复缺陷、重构、集成或交付。
 调试闭环见 repo://docs/agents/debugging.md。触发：错误、失败、性能回归、环境不一致或改动不生效。
@@ -37,7 +38,7 @@
 <branching>
 主目录永远只 checkout main，单会话改动直接在 main。只有 herdr 分派并行任务时才一票一树：`git worktree add` 从 main 最新 commit 建树，任务分支随树创建、只存在于树内。
 main 只接收已验证提交；票收口即删树删分支。
-详细规则见 repo://docs/agents/git-branching.md。触发：开/切/合/删分支、worktree、herdr 分派、并行 agent 写入。
+详细规则见 repo://docs/agents/git-branching.md。触发：开/切/合/删分支、push、合并 PR、worktree、herdr 分派、并行 agent 写入。
 </branching>
 
 <architecture>
@@ -75,12 +76,12 @@ Git 只 stage 语义相关路径。不要使用 git add .。
 非琐碎逻辑至少留下一个在错误实现下会失败的检查。
 修复缺陷时，同一最小检查必须先失败后通过。
 跳过测试时说明原因和剩余风险。
-提交、推送、创建 PR 或部署需要用户明确要求。普通实现任务只修改并验证本地工作区。
+审查、审计、解释、报告、计划和提案均为只读交付物，不授权实现。提交、推送、修改或合并 PR、发布和部署需要用户明确要求，或当前任务中已明确确立的工作流。普通实现任务只修改并验证本地工作区。
 稳定验证入口：`xcodebuild test -quiet -project Folbi.xcodeproj -scheme Folbi -destination 'platform=macOS,arch=arm64' -derivedDataPath .build/DerivedData -skipPackagePluginValidation CODE_SIGNING_ALLOWED=NO`。
 </done_definition>
 
 <review_standard>
-先列 Findings。按严重度排序。每条引用文件和行号。
+先枚举审查范围，再列 Findings。按严重度排序，每条引用文件和行号；省略工具已覆盖的通用发现。
 Standards 轴先审 Coding，再审 Architecture。Spec 轴独立核对需求。
 没有 finding 时，也说明测试缺口、未验证路径和剩余风险。
 只报告能由代码、测试、运行证据或合同证明的问题。
@@ -89,6 +90,7 @@ Standards 轴先审 Coding，再审 Architecture。Spec 轴独立核对需求。
 
 <principles>
 在满足当前需求的前提下，选择最简单的实现。
+维护工作做定向修改并遵循既有约定；明确要求重新设计、重写或破坏兼容时，从第一原则重新推导，不把最小化和兼容性作为隐藏要求带回。
 先交付可端到端验证的最小切片，再逐步增加能力。
 新增依赖前检查现有依赖、官方文档和类型定义。
 替换旧设计执行 clean-break：同一次变更彻底切换并删除旧路径，不留新旧并存分支。持久状态和外部合同的破坏性删除必须先证明零读零写，并取得明确授权。

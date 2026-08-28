@@ -4,11 +4,12 @@
 
 ## 1. 报告顺序
 
-1. Findings。按严重度排序。
-2. Coding。检查局部正确性、类型、错误、测试和坏味道。
-3. Architecture。检查所有权、依赖、interface 和持久状态。
-4. Spec。独立核对需求和验收标准。
-5. Verification gaps。记录未运行测试、未覆盖路径和剩余风险。
+1. Scope。枚举相关审查范围，按用户影响和风险排定优先级。
+2. Findings。按严重度排序。
+3. Coding。检查局部正确性、类型、错误、测试和坏味道。
+4. Architecture。检查所有权、依赖、interface 和持久状态。
+5. Spec。独立核对需求和验收标准。
+6. Verification gaps。记录未运行测试、未覆盖路径和剩余风险。
 
 每个 finding 必须包含：
 
@@ -18,7 +19,7 @@
 - 证据。
 - 最小修复方向。
 
-没有证据时写 Unknown，不报告为缺陷。
+没有证据时写 Unknown，不报告为缺陷。工具已覆盖的通用或表面发现省略不报。
 
 交付阶段决定 finding 的处理路径，不决定是否报告。根 repo://AGENTS.md `<stage>` 判定为延后的加固类 finding 照常出现在报告里，并登记进 repo://docs/deferred-hardening.md。
 
