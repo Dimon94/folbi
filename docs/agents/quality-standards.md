@@ -20,6 +20,8 @@
 
 没有证据时写 Unknown，不报告为缺陷。
 
+交付阶段决定 finding 的处理路径，不决定是否报告。根 repo://AGENTS.md `<stage>` 判定为延后的加固类 finding 照常出现在报告里，并登记进 repo://docs/deferred-hardening.md。
+
 ## 2. 严重度
 
 - P0：正在造成不可逆数据损坏、严重安全问题或全面不可用。

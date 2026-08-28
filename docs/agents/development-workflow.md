@@ -99,5 +99,6 @@
 - 实际改动。
 - 验证命令和结果。
 - 跳过项与剩余风险。
+- 本次写入 repo://docs/deferred-hardening.md 的新增或变更条目；无新发现时点名“无新增”。
 
 只有用户明确要求时才 stage、commit、push、创建 PR 或部署。Stage 时列出具体路径。
