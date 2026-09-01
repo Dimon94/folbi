@@ -23,6 +23,7 @@
 
 ## 收口记录
 
+- 2026-09-01：无新增。Folbi 0.1.3 发布候选已清除上游 framework 的失效嵌套签名，并通过全量测试、Universal 2 干净 Release 构建、ZIP 完整性、解包复检和 SHA-256 校验；仍未使用 Developer ID 签名或 Apple 公证。
 - 2026-08-28：新增 P2「公开安装包缺少 Developer ID 签名与 Apple 公证」。Folbi 0.1.2 已发布；全量测试、Universal 2 Release 构建、ZIP 完整性和远程下载校验通过。
 - 2026-08-26：无新增。本次只打 0.1.2 Release zip，未跑测试套件，未做 Developer ID 签名与公证。
 - 2026-08-26：无新增。历史视图差异栏从并排改为统一单列内联；解析合同测试已绿，未做窗口内手工 smoke。
