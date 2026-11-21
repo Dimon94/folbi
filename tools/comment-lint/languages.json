@@ -1,0 +1,10 @@
+{
+  ".bash": "bash",
+  ".gitignore": "gitignore",
+  ".py": "python",
+  ".sh": "bash",
+  ".swift": "swift",
+  ".toml": "toml",
+  ".yaml": "yaml",
+  ".yml": "yaml"
+}
